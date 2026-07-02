@@ -25,6 +25,7 @@ model User {
   createdAt    DateTime  @default(now())
 
   memberships FamilyMember[]
+   messages    Message[]
 }
 
 model Family {
@@ -34,6 +35,7 @@ model Family {
 
   members FamilyMember[]
   invitations Invitation[]
+  messages    Message[]
 }
 
 model FamilyMember {
@@ -66,3 +68,15 @@ model Invitation {
 
   family Family @relation(fields: [familyId], references: [id])
 }
+
+model Message {
+  id        String   @id @default(uuid())
+  content   String
+  familyId  String
+  senderId  String
+  createdAt DateTime @default(now())
+
+  family Family @relation(fields: [familyId], references: [id])
+  sender User   @relation(fields: [senderId], references: [id])
+}
+

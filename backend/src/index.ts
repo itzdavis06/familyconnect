@@ -282,6 +282,68 @@ app.get("/api/families/:familyId/members", requireAuth, async (req: AuthedReques
   res.json(result);
 });
 
+app.post("/api/families/:familyId/messages", requireAuth, async (req: AuthedRequest, res) => {
+  const { familyId } = req.params;
+  const { content } = req.body;
+
+  if (!content || !content.trim()) {
+    return res.status(400).json({ error: "Message cannot be empty" });
+  }
+
+  const membership = await prisma.familyMember.findUnique({
+    where: { userId_familyId: { userId: req.userId!, familyId } },
+  });
+
+  if (!membership) {
+    return res.status(403).json({ error: "You're not a member of this family" });
+  }
+
+  if (membership.role === "CHILD") {
+    return res.status(403).json({ error: "Child profiles cannot send messages" });
+  }
+
+  const message = await prisma.message.create({
+    data: { content: content.trim(), familyId, senderId: req.userId! },
+    include: { sender: true },
+  });
+
+  res.status(201).json({
+    id: message.id,
+    content: message.content,
+    createdAt: message.createdAt,
+    senderId: message.senderId,
+    senderName: message.sender.fullName || message.sender.username,
+  });
+});
+
+app.get("/api/families/:familyId/messages", requireAuth, async (req: AuthedRequest, res) => {
+  const { familyId } = req.params;
+
+  const membership = await prisma.familyMember.findUnique({
+    where: { userId_familyId: { userId: req.userId!, familyId } },
+  });
+
+  if (!membership) {
+    return res.status(403).json({ error: "You're not a member of this family" });
+  }
+
+  const messages = await prisma.message.findMany({
+    where: { familyId },
+    include: { sender: true },
+    orderBy: { createdAt: "asc" },
+  });
+
+  const result = messages.map((m) => ({
+    id: m.id,
+    content: m.content,
+    createdAt: m.createdAt,
+    senderId: m.senderId,
+    senderName: m.sender.fullName || m.sender.username,
+  }));
+
+  res.json(result);
+});
+
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
