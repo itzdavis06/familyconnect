@@ -33,6 +33,7 @@ model Family {
   createdAt DateTime @default(now())
 
   members FamilyMember[]
+  invitations Invitation[]
 }
 
 model FamilyMember {
@@ -52,4 +53,16 @@ enum Role {
   PARENT
   MEMBER
   CHILD
+}
+
+model Invitation {
+  id        String   @id @default(uuid())
+  token     String   @unique @default(uuid())
+  familyId  String
+  role      Role     @default(MEMBER)
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  family Family @relation(fields: [familyId], references: [id])
 }
