@@ -41,9 +41,9 @@ export default function Register() {
 
   if (success) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
+      <div className="flex min-h-screen items-center justify-center bg-cream-50">
         <div className="w-full max-w-sm rounded-xl border border-gray-200 bg-white p-8 text-center">
-          <h1 className="text-2xl font-bold text-slate-900">
+          <h1 className="font-[var(--font-manrope)] text-2xl font-extrabold text-navy-900">
             Account created!
           </h1>
           <p className="mt-2 text-sm text-slate-600">
@@ -51,7 +51,7 @@ export default function Register() {
           </p>
           
             <a href="/login"
-            className="mt-6 block rounded-full bg-slate-800 px-5 py-2.5 text-sm font-semibold text-white"
+            className="mt-6 block rounded-full bg-navy-700 px-5 py-2.5 text-sm font-semibold text-white"
           >
             Go to Login
           </a>
@@ -61,9 +61,9 @@ export default function Register() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50">
+    <div className="flex min-h-screen items-center justify-center bg-cream-50">
       <div className="w-full max-w-sm rounded-xl border border-gray-200 bg-white p-8">
-        <h1 className="text-2xl font-bold text-slate-900">
+        <h1 className="font-[var(--font-manrope)] text-2xl font-extrabold text-navy-900">
           Create your account
         </h1>
         <p className="mt-1 text-sm text-slate-600">
@@ -112,7 +112,7 @@ export default function Register() {
 
           <button
             type="submit"
-            className="mt-2 rounded-full bg-slate-800 px-5 py-2.5 text-sm font-semibold text-white"
+            className="mt-2 rounded-full bg-navy-700 px-5 py-2.5 text-sm font-semibold text-white"
           >
             Create account
           </button>
@@ -120,7 +120,7 @@ export default function Register() {
 
         <p className="mt-6 text-center text-sm text-slate-600">
           Already have an account?{" "}
-          <a href="/login" className="font-medium text-slate-900 underline">
+          <a href="/login" className="font-medium text-navy-700 underline">
             Log in
           </a>
         </p>
