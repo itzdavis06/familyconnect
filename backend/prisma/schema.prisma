@@ -39,15 +39,18 @@ model Family {
 }
 
 model FamilyMember {
-  id       String @id @default(uuid())
-  role     Role
-  userId   String
-  familyId String
-  parentMemberId String?
+  id              String    @id @default(uuid())
+  role            Role
+  userId          String?
+  familyId        String
+  parentMemberId  String?
+  childFullName   String?
+  childDateOfBirth DateTime?
+  createdByUserId String?
 
-  user   User   @relation(fields: [userId], references: [id])
-  family Family @relation(fields: [familyId], references: [id])
-  parent FamilyMember? @relation("ParentChild", fields: [parentMemberId], references: [id])
+  user     User?         @relation(fields: [userId], references: [id])
+  family   Family        @relation(fields: [familyId], references: [id])
+  parent   FamilyMember? @relation("ParentChild", fields: [parentMemberId], references: [id])
   children FamilyMember[] @relation("ParentChild")
 
   @@unique([userId, familyId])

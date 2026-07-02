@@ -329,6 +329,41 @@ app.patch("/api/families/:familyId/members/:memberUserId/parent", requireAuth, a
   res.json({ success: true });
 });
 
+app.post("/api/families/:familyId/children", requireAuth, async (req: AuthedRequest, res) => {
+  const { familyId } = req.params;
+  const { fullName, dateOfBirth, parentMemberId } = req.body;
+
+  if (!fullName || !dateOfBirth) {
+    return res.status(400).json({ error: "Full name and date of birth are required" });
+  }
+
+  const dob = new Date(dateOfBirth);
+  if (dob > new Date()) {
+    return res.status(400).json({ error: "Date of birth cannot be in the future" });
+  }
+
+  const requesterMembership = await prisma.familyMember.findUnique({
+    where: { userId_familyId: { userId: req.userId!, familyId } },
+  });
+
+  if (!requesterMembership || (requesterMembership.role !== "ADMIN" && requesterMembership.role !== "PARENT")) {
+    return res.status(403).json({ error: "Only admins and parents can add a child profile" });
+  }
+
+  const child = await prisma.familyMember.create({
+    data: {
+      familyId,
+      role: "CHILD",
+      childFullName: fullName,
+      childDateOfBirth: dob,
+      parentMemberId: parentMemberId || requesterMembership.id,
+      createdByUserId: req.userId!,
+    },
+  });
+
+  res.status(201).json({ id: child.id, fullName: child.childFullName });
+});
+
 app.post("/api/families/:familyId/messages", requireAuth, async (req: AuthedRequest, res) => {
   const { familyId } = req.params;
   const { content } = req.body;
