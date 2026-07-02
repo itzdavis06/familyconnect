@@ -88,6 +88,28 @@ app.get("/api/me", async (req, res) => {
   }
 });
 
+app.patch("/api/me", requireAuth, async (req: AuthedRequest, res) => {
+  const { fullName, dateOfBirth, email, phone, occupation, location } = req.body;
+
+  const user = await prisma.user.update({
+    where: { id: req.userId! },
+    data: {
+      fullName,
+      dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : undefined,
+      email,
+      phone,
+      occupation,
+      location,
+    },
+  });
+
+  res.json({
+    id: user.id,
+    username: user.username,
+    fullName: user.fullName,
+  });
+});
+
 app.post("/api/families", requireAuth, async (req: AuthedRequest, res) => {
   const { name } = req.body;
 
