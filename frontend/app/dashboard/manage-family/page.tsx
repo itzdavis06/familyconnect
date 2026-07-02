@@ -8,8 +8,18 @@ interface Family {
   role: string;
 }
 
+interface Member {
+  id: string;
+  memberId: string;
+  username: string;
+  fullName: string | null;
+  role: string;
+  parentMemberId: string | null;
+}
+
 export default function ManageFamily() {
   const [families, setFamilies] = useState<Family[] | null>(null);
+  const [members, setMembers] = useState<Member[]>([]);
   const [name, setName] = useState("");
   const [error, setError] = useState("");
   const [inviteLink, setInviteLink] = useState("");
@@ -19,6 +29,20 @@ export default function ManageFamily() {
       .then((res) => res.json())
       .then(setFamilies);
   }, []);
+
+  useEffect(() => {
+    if (!families || families.length === 0) return;
+    loadMembers();
+  }, [families]);
+
+  async function loadMembers() {
+    if (!families || families.length === 0) return;
+    const res = await fetch(
+      `http://localhost:4000/api/families/${families[0].id}/members`,
+      { credentials: "include" }
+    );
+    if (res.ok) setMembers(await res.json());
+  }
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
@@ -55,7 +79,23 @@ export default function ManageFamily() {
       setInviteLink(`http://localhost:3000/join-family?token=${data.token}`);
     }
   }
-  
+
+  async function handleParentChange(memberUserId: string, parentUserId: string) {
+    if (!families || families.length === 0) return;
+
+    await fetch(
+      `http://localhost:4000/api/families/${families[0].id}/members/${memberUserId}/parent`,
+      {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ parentUserId: parentUserId || null }),
+      }
+    );
+
+    loadMembers();
+  }
+
   if (families === null) {
     return <p className="text-slate-500">Loading...</p>;
   }
@@ -101,6 +141,8 @@ export default function ManageFamily() {
     );
   }
 
+  const isAdmin = families[0].role === "ADMIN";
+
   return (
     <div>
       <div className="flex items-center justify-between">
@@ -108,7 +150,7 @@ export default function ManageFamily() {
           <h1 className="text-2xl font-bold text-slate-900">Manage Family</h1>
           <p className="mt-1 text-sm text-slate-600">{families[0].name}</p>
         </div>
-        {families[0].role === "ADMIN" && (
+        {isAdmin && (
           <button
             onClick={handleInvite}
             className="rounded-full bg-navy-700 px-5 py-2.5 text-sm font-semibold text-white"
@@ -139,10 +181,46 @@ export default function ManageFamily() {
         </div>
       )}
 
-      <div className="mt-6 max-w-2xl rounded-xl border border-gray-200 bg-white p-4">
-        <p className="text-sm font-semibold text-slate-800">You</p>
-        <p className="text-xs text-slate-500">{families[0].role}</p>
+      <div className="mt-6 max-w-2xl rounded-xl border border-gray-200 bg-white">
+        {members.map((m) => (
+          <div
+            key={m.id}
+            className="flex items-center justify-between border-b border-gray-100 p-4 last:border-b-0"
+          >
+            <div>
+              <p className="text-sm font-semibold text-slate-800">
+                {m.fullName || m.username}
+              </p>
+              <p className="text-xs text-slate-500">{m.role}</p>
+            </div>
+
+            {isAdmin && (
+              <div>
+                <label className="mr-2 text-xs text-slate-500">Parent:</label>
+                <select
+                  value={m.parentMemberId ? findUserIdByMemberId(members, m.parentMemberId) : ""}
+                  onChange={(e) => handleParentChange(m.id, e.target.value)}
+                  className="rounded-lg border border-gray-300 px-2 py-1 text-xs"
+                >
+                  <option value="">No parent</option>
+                  {members
+                    .filter((candidate) => candidate.id !== m.id)
+                    .map((candidate) => (
+                      <option key={candidate.id} value={candidate.id}>
+                        {candidate.fullName || candidate.username}
+                      </option>
+                    ))}
+                </select>
+              </div>
+            )}
+          </div>
+        ))}
       </div>
     </div>
   );
+}
+
+function findUserIdByMemberId(members: Member[], memberId: string) {
+  const found = members.find((m) => m.memberId === memberId);
+  return found ? found.id : "";
 }
