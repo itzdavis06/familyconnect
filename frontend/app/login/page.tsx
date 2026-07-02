@@ -4,7 +4,7 @@ export default function Login() {
       <div className="w-full max-w-sm rounded-xl border border-gray-200 bg-white p-8">
         <h1 className="text-2xl font-bold text-slate-900">Log in</h1>
         <p className="mt-1 text-sm text-slate-600">
-          Welcome back to FamilyConnect.
+          Welcome back to Family Connect.
         </p>
 
         <form className="mt-6 flex flex-col gap-4">
