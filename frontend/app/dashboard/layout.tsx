@@ -35,6 +35,11 @@ export default function DashboardLayout({
           >
             Profile
           </a>
+            <a href="/dashboard/manage-family"
+            className="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-gray-100"
+          >
+            Manage Family
+          </a>
           
             <a href="/dashboard/settings"
             className="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-gray-100"
