@@ -9,12 +9,13 @@ interface Family {
 }
 
 interface Member {
-  id: string;
+  id: string | null;
   memberId: string;
-  username: string;
+  username: string | null;
   fullName: string | null;
   role: string;
   parentMemberId: string | null;
+  isChild: boolean;
 }
 
 export default function ManageFamily() {
@@ -23,6 +24,9 @@ export default function ManageFamily() {
   const [name, setName] = useState("");
   const [error, setError] = useState("");
   const [inviteLink, setInviteLink] = useState("");
+  const [childName, setChildName] = useState("");
+  const [childDob, setChildDob] = useState("");
+  const [childError, setChildError] = useState("");
 
   useEffect(() => {
     fetch("http://localhost:4000/api/families", { credentials: "include" })
@@ -93,6 +97,34 @@ export default function ManageFamily() {
       }
     );
 
+    loadMembers();
+  }
+
+  async function handleAddChild(e: React.FormEvent) {
+    e.preventDefault();
+    setChildError("");
+
+    if (!families || families.length === 0) return;
+
+    const res = await fetch(
+      `http://localhost:4000/api/families/${families[0].id}/children`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ fullName: childName, dateOfBirth: childDob }),
+      }
+    );
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      setChildError(data.error || "Something went wrong");
+      return;
+    }
+
+    setChildName("");
+    setChildDob("");
     loadMembers();
   }
 
@@ -180,11 +212,51 @@ export default function ManageFamily() {
           </div>
         </div>
       )}
-
+     {isAdmin && (
+        <form
+          onSubmit={handleAddChild}
+          className="mt-6 flex max-w-2xl flex-wrap items-end gap-3 rounded-xl border border-gray-200 bg-white p-4"
+        >
+          <div>
+            <label className="text-xs font-medium text-slate-700">
+              Child&apos;s full name
+            </label>
+            <input
+              type="text"
+              value={childName}
+              onChange={(e) => setChildName(e.target.value)}
+              required
+              className="mt-1 rounded-lg border border-gray-300 px-3 py-2 text-sm"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-slate-700">
+              Date of birth
+            </label>
+            <input
+              type="date"
+              value={childDob}
+              onChange={(e) => setChildDob(e.target.value)}
+              max={new Date().toISOString().split("T")[0]}
+              required
+              className="mt-1 rounded-lg border border-gray-300 px-3 py-2 text-sm"
+            />
+          </div>
+          <button
+            type="submit"
+            className="rounded-full bg-green-600 px-5 py-2.5 text-sm font-semibold text-white"
+          >
+            + Add Child Profile
+          </button>
+          {childError && (
+            <p className="w-full text-sm text-red-600">{childError}</p>
+          )}
+        </form>
+      )}
       <div className="mt-6 max-w-2xl rounded-xl border border-gray-200 bg-white">
         {members.map((m) => (
           <div
-            key={m.id}
+            key={m.memberId}
             className="flex items-center justify-between border-b border-gray-100 p-4 last:border-b-0"
           >
             <div>
@@ -194,19 +266,19 @@ export default function ManageFamily() {
               <p className="text-xs text-slate-500">{m.role}</p>
             </div>
 
-            {isAdmin && (
+            {isAdmin && !m.isChild && (
               <div>
                 <label className="mr-2 text-xs text-slate-500">Parent:</label>
                 <select
                   value={m.parentMemberId ? findUserIdByMemberId(members, m.parentMemberId) : ""}
-                  onChange={(e) => handleParentChange(m.id, e.target.value)}
+                  onChange={(e) => handleParentChange(m.id!, e.target.value)}
                   className="rounded-lg border border-gray-300 px-2 py-1 text-xs"
                 >
                   <option value="">No parent</option>
-                  {members
-                    .filter((candidate) => candidate.id !== m.id)
+                 {members
+                    .filter((candidate) => !candidate.isChild && candidate.id !== m.id)
                     .map((candidate) => (
-                      <option key={candidate.id} value={candidate.id}>
+                      <option key={candidate.memberId} value={candidate.id!}>
                         {candidate.fullName || candidate.username}
                       </option>
                     ))}

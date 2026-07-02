@@ -1,12 +1,13 @@
 import { cookies } from "next/headers";
 
 interface Member {
-  id: string;
+  id: string | null;
   memberId: string;
-  username: string;
+  username: string | null;
   fullName: string | null;
   role: string;
   parentMemberId: string | null;
+  isChild: boolean;
 }
 
 async function getCurrentFamily(token: string) {
@@ -61,7 +62,7 @@ function MemberNode({ member, members }: { member: Member; members: Member[] }) 
           <div className="h-6 w-px bg-gray-300" />
           <div className="flex gap-10">
             {children.map((child) => (
-              <MemberNode key={child.id} member={child} members={members} />
+              <MemberNode key={child.memberId} member={child} members={members} />
             ))}
           </div>
         </>
@@ -104,7 +105,7 @@ export default async function FamilyTree() {
 
       <div className="mt-8 flex flex-wrap justify-center gap-10">
         {roots.map((root: Member) => (
-          <MemberNode key={root.id} member={root} members={family.members} />
+          <MemberNode key={root.memberId} member={root} members={family.members} />
         ))}
       </div>
     </div>

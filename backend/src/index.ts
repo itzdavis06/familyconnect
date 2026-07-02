@@ -267,20 +267,21 @@ app.get("/api/families/:familyId/members", requireAuth, async (req: AuthedReques
     return res.status(403).json({ error: "You're not a member of this family" });
   }
 
-  const members = await prisma.familyMember.findMany({
+ const members = await prisma.familyMember.findMany({
     where: { familyId },
     include: { user: true },
   });
 
   const result = members.map((m) => ({
-    id: m.user.id,
+    id: m.user ? m.user.id : null,
     memberId: m.id,
-    username: m.user.username,
-    fullName: m.user.fullName,
+    username: m.user ? m.user.username : null,
+    fullName: m.user ? m.user.fullName : m.childFullName,
     role: m.role,
     parentMemberId: m.parentMemberId,
+    isChild: !m.user,
   }));
-
+  
   res.json(result);
 });
 
