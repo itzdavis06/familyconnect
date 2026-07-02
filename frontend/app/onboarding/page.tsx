@@ -69,6 +69,7 @@ export default function Onboarding() {
               type="date"
               value={dateOfBirth}
               onChange={(e) => setDateOfBirth(e.target.value)}
+              max={new Date().toISOString().split("T")[0]}
               required
               className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
             />

@@ -118,6 +118,14 @@ app.patch("/api/me", requireAuth, async (req: AuthedRequest, res) => {
   const { fullName, dateOfBirth, email, phone, occupation, location } = req.body;
 
   try {
+   
+    if (dateOfBirth) {
+      const dob = new Date(dateOfBirth);
+      if (dob > new Date()) {
+        return res.status(400).json({ error: "Date of birth cannot be in the future" });
+      }
+    }
+
     const user = await prisma.user.update({
       where: { id: req.userId! },
       data: {
