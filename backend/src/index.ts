@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import cookieParser from "cookie-parser";
 import {prisma}  from "./prisma";
+import { requireAuth, AuthedRequest } from "./auth";
 
 dotenv.config();
 
@@ -85,6 +86,31 @@ app.get("/api/me", async (req, res) => {
   } catch {
     res.status(401).json({ error: "Invalid or expired session" });
   }
+});
+
+app.post("/api/families", requireAuth, async (req: AuthedRequest, res) => {
+  const { name } = req.body;
+
+  if (!name) {
+    return res.status(400).json({ error: "Family name is required" });
+  }
+
+  const family = await prisma.family.create({
+    data: {
+      name,
+      members: {
+        create: {
+          userId: req.userId!,
+          role: "ADMIN",
+        },
+      },
+    },
+    include: {
+      members: true,
+    },
+  });
+
+  res.status(201).json(family);
 });
 
 const PORT = process.env.PORT || 4000;
