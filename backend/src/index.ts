@@ -274,12 +274,59 @@ app.get("/api/families/:familyId/members", requireAuth, async (req: AuthedReques
 
   const result = members.map((m) => ({
     id: m.user.id,
+    memberId: m.id,
     username: m.user.username,
     fullName: m.user.fullName,
     role: m.role,
+    parentMemberId: m.parentMemberId,
   }));
 
   res.json(result);
+});
+
+app.patch("/api/families/:familyId/members/:memberUserId/parent", requireAuth, async (req: AuthedRequest, res) => {
+  const { familyId, memberUserId } = req.params;
+  const { parentUserId } = req.body;
+
+  const requesterMembership = await prisma.familyMember.findUnique({
+    where: { userId_familyId: { userId: req.userId!, familyId } },
+  });
+
+  if (!requesterMembership || requesterMembership.role !== "ADMIN") {
+    return res.status(403).json({ error: "Only family admins can edit the family tree" });
+  }
+
+  const targetMember = await prisma.familyMember.findUnique({
+    where: { userId_familyId: { userId: memberUserId, familyId } },
+  });
+
+  if (!targetMember) {
+    return res.status(404).json({ error: "Member not found in this family" });
+  }
+
+  let parentMemberId: string | null = null;
+
+  if (parentUserId) {
+    const parentMember = await prisma.familyMember.findUnique({
+      where: { userId_familyId: { userId: parentUserId, familyId } },
+    });
+
+    if (!parentMember) {
+      return res.status(404).json({ error: "Parent member not found in this family" });
+    }
+    if (parentMember.id === targetMember.id) {
+      return res.status(400).json({ error: "A member cannot be their own parent" });
+    }
+
+    parentMemberId = parentMember.id;
+  }
+
+  await prisma.familyMember.update({
+    where: { id: targetMember.id },
+    data: { parentMemberId },
+  });
+
+  res.json({ success: true });
 });
 
 app.post("/api/families/:familyId/messages", requireAuth, async (req: AuthedRequest, res) => {
@@ -343,6 +390,8 @@ app.get("/api/families/:familyId/messages", requireAuth, async (req: AuthedReque
 
   res.json(result);
 });
+
+
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {

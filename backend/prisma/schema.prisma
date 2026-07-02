@@ -43,9 +43,12 @@ model FamilyMember {
   role     Role
   userId   String
   familyId String
+  parentMemberId String?
 
   user   User   @relation(fields: [userId], references: [id])
   family Family @relation(fields: [familyId], references: [id])
+  parent FamilyMember? @relation("ParentChild", fields: [parentMemberId], references: [id])
+  children FamilyMember[] @relation("ParentChild")
 
   @@unique([userId, familyId])
 }
