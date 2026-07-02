@@ -1,5 +1,14 @@
 import { cookies } from "next/headers";
 
+interface Member {
+  id: string;
+  memberId: string;
+  username: string;
+  fullName: string | null;
+  role: string;
+  parentMemberId: string | null;
+}
+
 async function getCurrentFamily(token: string) {
   const familiesRes = await fetch("http://localhost:4000/api/families", {
     headers: { Cookie: `token=${token}` },
@@ -16,7 +25,7 @@ async function getCurrentFamily(token: string) {
     { headers: { Cookie: `token=${token}` }, cache: "no-store" }
   );
 
-  const members = await membersRes.json();
+  const members: Member[] = await membersRes.json();
 
   return { ...family, members };
 }
@@ -27,6 +36,39 @@ const roleColor: Record<string, string> = {
   MEMBER: "ring-green-600",
   CHILD: "ring-amber-400",
 };
+
+function MemberNode({ member, members }: { member: Member; members: Member[] }) {
+  const children = members.filter((m) => m.parentMemberId === member.memberId);
+
+  return (
+    <div className="flex flex-col items-center">
+      <div className="flex flex-col items-center gap-1">
+        <div
+          className={`flex h-14 w-14 items-center justify-center rounded-full bg-white text-sm font-semibold text-slate-700 shadow ring-2 ${
+            roleColor[member.role] || "ring-gray-300"
+          }`}
+        >
+          {(member.fullName || member.username).slice(0, 2).toUpperCase()}
+        </div>
+        <span className="text-sm font-medium text-slate-700">
+          {member.fullName || member.username}
+        </span>
+        <span className="text-xs text-slate-500">{member.role}</span>
+      </div>
+
+      {children.length > 0 && (
+        <>
+          <div className="h-6 w-px bg-gray-300" />
+          <div className="flex gap-10">
+            {children.map((child) => (
+              <MemberNode key={child.id} member={child} members={members} />
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
 
 export default async function FamilyTree() {
   const cookieStore = await cookies();
@@ -51,6 +93,8 @@ export default async function FamilyTree() {
     );
   }
 
+  const roots = family.members.filter((m: Member) => !m.parentMemberId);
+
   return (
     <div>
       <h1 className="font-[var(--font-manrope)] text-2xl font-extrabold text-navy-900">
@@ -59,20 +103,8 @@ export default async function FamilyTree() {
       <p className="mt-1 text-sm text-slate-600">{family.name}</p>
 
       <div className="mt-8 flex flex-wrap justify-center gap-10">
-        {family.members.map((member: any) => (
-          <div key={member.id} className="flex flex-col items-center gap-1">
-            <div
-              className={`flex h-14 w-14 items-center justify-center rounded-full bg-white text-sm font-semibold text-slate-700 shadow ring-2 ${
-                roleColor[member.role] || "ring-gray-300"
-              }`}
-            >
-              {(member.fullName || member.username).slice(0, 2).toUpperCase()}
-            </div>
-            <span className="text-sm font-medium text-slate-700">
-              {member.fullName || member.username}
-            </span>
-            <span className="text-xs text-slate-500">{member.role}</span>
-          </div>
+        {roots.map((root: Member) => (
+          <MemberNode key={root.id} member={root} members={family.members} />
         ))}
       </div>
     </div>
