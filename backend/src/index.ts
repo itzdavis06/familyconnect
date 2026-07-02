@@ -243,6 +243,32 @@ app.post("/api/invitations/:token/accept", requireAuth, async (req: AuthedReques
   res.json({ familyId: family!.id, familyName: family!.name });
 });
 
+app.get("/api/families/:familyId/members", requireAuth, async (req: AuthedRequest, res) => {
+  const { familyId } = req.params;
+
+  const membership = await prisma.familyMember.findUnique({
+    where: { userId_familyId: { userId: req.userId!, familyId } },
+  });
+
+  if (!membership) {
+    return res.status(403).json({ error: "You're not a member of this family" });
+  }
+
+  const members = await prisma.familyMember.findMany({
+    where: { familyId },
+    include: { user: true },
+  });
+
+  const result = members.map((m) => ({
+    id: m.user.id,
+    username: m.user.username,
+    fullName: m.user.fullName,
+    role: m.role,
+  }));
+
+  res.json(result);
+});
+
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
