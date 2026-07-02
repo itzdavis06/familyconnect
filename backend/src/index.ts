@@ -2,12 +2,15 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import cookieParser from "cookie-parser";
 import {prisma}  from "./prisma";
 
 dotenv.config();
 
 const app = express();
-app.use(cors());
+app.use(cors({ origin: "http://localhost:3000", credentials: true }));
+app.use(cookieParser());
 app.use(express.json());
 
 app.get("/", (req, res) => {
@@ -51,8 +54,37 @@ app.post("/api/login", async (req, res) => {
   if (!valid) {
     return res.status(401).json({ error: "Invalid username or password" });
   }
+  const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET!, {
+    expiresIn: "7d",
+  });
+
+  res.cookie("token", token, {
+    httpOnly: true,
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  });
 
   res.json({ id: user.id, username: user.username });
+});
+
+app.get("/api/me", async (req, res) => {
+  const token = req.cookies.token;
+
+  if (!token) {
+    return res.status(401).json({ error: "Not logged in" });
+  }
+
+  try {
+    const payload = jwt.verify(token, process.env.JWT_SECRET!) as { userId: string };
+    const user = await prisma.user.findUnique({ where: { id: payload.userId } });
+
+    if (!user) {
+      return res.status(401).json({ error: "User not found" });
+    }
+
+    res.json({ id: user.id, username: user.username });
+  } catch {
+    res.status(401).json({ error: "Invalid or expired session" });
+  }
 });
 
 const PORT = process.env.PORT || 4000;
