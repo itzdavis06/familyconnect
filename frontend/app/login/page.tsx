@@ -1,19 +1,54 @@
+"use client";
+
+import { useState } from "react";
+
 export default function Login() {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+
+    try {
+      const res = await fetch("http://localhost:4000/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Something went wrong");
+        return;
+      }
+
+      window.location.href = "/dashboard";
+    } catch {
+      setError("Could not reach the server. Is the backend running?");
+    }
+  }
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50">
       <div className="w-full max-w-sm rounded-xl border border-gray-200 bg-white p-8">
         <h1 className="text-2xl font-bold text-slate-900">Log in</h1>
         <p className="mt-1 text-sm text-slate-600">
-          Welcome back to Family Connect.
+          Welcome back to FamilyConnect.
         </p>
 
-        <form className="mt-6 flex flex-col gap-4">
+        <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4">
           <div>
             <label className="text-sm font-medium text-slate-700">
               Username
             </label>
             <input
               type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
               className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
             />
           </div>
@@ -23,9 +58,15 @@ export default function Login() {
             </label>
             <input
               type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
               className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
             />
           </div>
+
+          {error && <p className="text-sm text-red-600">{error}</p>}
+
           <button
             type="submit"
             className="mt-2 rounded-full bg-slate-800 px-5 py-2.5 text-sm font-semibold text-white"
