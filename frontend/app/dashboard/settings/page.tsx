@@ -1,4 +1,14 @@
+"use client";
+
 export default function Settings() {
+  async function handleLogout() {
+    await fetch("http://localhost:4000/api/logout", {
+      method: "POST",
+      credentials: "include",
+    });
+    window.location.href = "/login";
+  }
+
   return (
     <div>
       <h1 className="text-2xl font-bold text-slate-900">Settings</h1>
@@ -32,7 +42,10 @@ export default function Settings() {
         </div>
 
         <div className="p-4">
-          <button className="block w-full py-2 text-left text-sm font-medium text-red-600">
+          <button
+            onClick={handleLogout}
+            className="block w-full py-2 text-left text-sm font-medium text-red-600"
+          >
             Log Out
           </button>
         </div>

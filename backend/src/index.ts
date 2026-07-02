@@ -77,6 +77,11 @@ app.post("/api/login", async (req, res) => {
   res.json({ id: user.id, username: user.username });
 });
 
+app.post("/api/logout", (req, res) => {
+  res.clearCookie("token");
+  res.json({ success: true });
+});
+
 app.get("/api/me", async (req, res) => {
   const token = req.cookies.token;
 
