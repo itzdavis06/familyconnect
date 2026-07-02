@@ -69,6 +69,9 @@ export default async function DashboardLayout({
           <a href="/dashboard/manage-family" className="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-green-100 hover:text-navy-700">
             Manage Family
           </a>
+          <a href="/dashboard/child-profile" className="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-green-100 hover:text-navy-700">
+            Child Profiles
+          </a>
           <a href="/dashboard/settings" className="rounded-lg px-3 py-2 text-sm font-medium text-slate-700 hover:bg-green-100 hover:text-navy-700">
             Settings
           </a>
