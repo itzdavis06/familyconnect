@@ -36,8 +36,18 @@ app.post("/api/register", async (req, res) => {
     data: { username, passwordHash },
   });
 
+  const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET!, {
+    expiresIn: "7d",
+  });
+
+  res.cookie("token", token, {
+    httpOnly: true,
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  });
+
   res.status(201).json({ id: user.id, username: user.username });
 });
+
 
 app.post("/api/login", async (req, res) => {
   const { username, password } = req.body;

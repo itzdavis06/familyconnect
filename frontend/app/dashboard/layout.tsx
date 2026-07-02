@@ -40,6 +40,10 @@ export default async function DashboardLayout({
     redirect("/login");
   }
 
+  if (!user.fullName) {
+    redirect("/onboarding");
+  }
+
   const families = token ? await getFamilies(token.value) : [];
   const currentFamily = families[0];
 

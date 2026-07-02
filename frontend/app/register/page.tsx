@@ -28,12 +28,12 @@ export default function Register() {
 
       const data = await res.json();
 
-      if (!res.ok) {
+     if (!res.ok) {
         setError(data.error || "Something went wrong");
         return;
       }
 
-      setSuccess(true);
+      window.location.href = "/onboarding";
     } catch {
       setError("Could not reach the server. Is the backend running?");
     }
