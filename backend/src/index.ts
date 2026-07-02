@@ -113,6 +113,21 @@ app.post("/api/families", requireAuth, async (req: AuthedRequest, res) => {
   res.status(201).json(family);
 });
 
+app.get("/api/families", requireAuth, async (req: AuthedRequest, res) => {
+  const memberships = await prisma.familyMember.findMany({
+    where: { userId: req.userId! },
+    include: { family: true },
+  });
+
+  const families = memberships.map((m) => ({
+    id: m.family.id,
+    name: m.family.name,
+    role: m.role,
+  }));
+
+  res.json(families);
+});
+
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
