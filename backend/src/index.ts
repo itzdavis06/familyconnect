@@ -82,7 +82,18 @@ app.get("/api/me", async (req, res) => {
       return res.status(401).json({ error: "User not found" });
     }
 
-    res.json({ id: user.id, username: user.username });
+   res.json({
+      id: user.id,
+      username: user.username,
+      fullName: user.fullName,
+      dateOfBirth: user.dateOfBirth,
+      email: user.email,
+      phone: user.phone,
+      occupation: user.occupation,
+      location: user.location,
+      createdAt: user.createdAt,
+    });
+    
   } catch {
     res.status(401).json({ error: "Invalid or expired session" });
   }
