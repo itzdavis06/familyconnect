@@ -16,16 +16,32 @@ async function getCurrentUser() {
   return res.json();
 }
 
+async function getFamilies(token: string) {
+  const res = await fetch("http://localhost:4000/api/families", {
+    headers: { Cookie: `token=${token}` },
+    cache: "no-store",
+  });
+
+  if (!res.ok) return [];
+  return res.json();
+}
+
 export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("token");
+
   const user = await getCurrentUser();
 
   if (!user) {
     redirect("/login");
   }
+
+  const families = token ? await getFamilies(token.value) : [];
+  const currentFamily = families[0];
 
   return (
     <div className="flex min-h-screen bg-cream-50">
@@ -56,8 +72,10 @@ export default async function DashboardLayout({
       </aside>
 
       <div className="flex-1">
-        <header className="flex items-center justify-between border-b border-gray-200 bg-white px-6 py-4">
-          <span className="text-sm font-semibold text-navy-700">My Family</span>
+       <header className="flex items-center justify-between border-b border-gray-200 bg-white px-6 py-4">
+          <span className="text-sm font-semibold text-navy-700">
+            {currentFamily ? currentFamily.name : "No family yet"}
+          </span>
           <div className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-navy-700 text-xs font-semibold text-white">
               {user.username.slice(0, 2).toUpperCase()}
