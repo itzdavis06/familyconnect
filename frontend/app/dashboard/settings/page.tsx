@@ -11,7 +11,9 @@ export default function Settings() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-slate-900">Settings</h1>
+      <h1 className="font-[var(--font-manrope)] text-2xl font-extrabold text-navy-900">
+        Settings
+      </h1>
 
       <div className="mt-6 max-w-md rounded-xl border border-gray-200 bg-white">
         <div className="border-b border-gray-100 p-4">

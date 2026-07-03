@@ -26,7 +26,9 @@ export default async function ChildProfile() {
   if (children.length === 0) {
     return (
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Child Profiles</h1>
+       <h1 className="font-[var(--font-manrope)] text-2xl font-extrabold text-navy-900">
+          Child Profiles
+        </h1>
         <p className="mt-2 text-sm text-slate-600">
           No child profiles yet.{" "}
           <a href="/dashboard/manage-family" className="underline">
@@ -48,10 +50,12 @@ export default async function ChildProfile() {
             key={child.memberId}
             className="w-full max-w-xs rounded-xl border border-gray-200 bg-white p-6 text-center"
           >
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gray-200 text-lg font-semibold text-slate-700">
+           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-amber-100 text-lg font-semibold text-amber-700">
               {child.fullName.slice(0, 2).toUpperCase()}
             </div>
-            <h2 className="mt-3 font-bold text-slate-900">{child.fullName}</h2>
+            <h2 className="mt-3 font-[var(--font-manrope)] font-bold text-navy-900">
+              {child.fullName}
+            </h2>
             <span className="mt-1 inline-block rounded-full bg-amber-100 px-3 py-1 text-xs font-medium text-amber-700">
               Child Profile
             </span>

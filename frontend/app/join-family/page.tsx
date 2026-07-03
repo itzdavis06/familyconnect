@@ -43,13 +43,15 @@ function JoinFamilyContent() {
   if (status === "success") {
     return (
       <div className="text-center">
-        <h1 className="text-2xl font-bold text-slate-900">Welcome!</h1>
+        <h1 className="font-[var(--font-manrope)] text-2xl font-extrabold text-navy-900">
+          Welcome!
+        </h1>
         <p className="mt-2 text-sm text-slate-600">
           You&apos;ve joined <span className="font-semibold">{familyName}</span>.
         </p>
         
           <a href="/dashboard"
-          className="mt-6 block rounded-full bg-slate-800 px-5 py-2.5 text-sm font-semibold text-white"
+          className="mt-6 block rounded-full bg-navy-700 px-5 py-2.5 text-sm font-semibold text-white"
         >
           Go to Dashboard
         </a>
@@ -59,7 +61,7 @@ function JoinFamilyContent() {
 
   return (
     <div className="text-center">
-      <h1 className="text-2xl font-bold text-slate-900">
+      <h1 className="font-[var(--font-manrope)] text-2xl font-extrabold text-navy-900">
         You&apos;ve been invited!
       </h1>
       <p className="mt-2 text-sm text-slate-600">
@@ -73,7 +75,7 @@ function JoinFamilyContent() {
       <button
         onClick={handleJoin}
         disabled={status === "loading"}
-        className="mt-6 block w-full rounded-full bg-slate-800 px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
+        className="mt-6 block w-full rounded-full bg-navy-700 px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
       >
         {status === "loading" ? "Joining..." : "Accept & Join"}
       </button>
@@ -89,7 +91,7 @@ function JoinFamilyContent() {
 
 export default function JoinFamily() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50">
+    <div className="flex min-h-screen items-center justify-center bg-cream-50">
       <div className="w-full max-w-sm rounded-xl border border-gray-200 bg-white p-8">
         <Suspense fallback={<p>Loading...</p>}>
           <JoinFamilyContent />

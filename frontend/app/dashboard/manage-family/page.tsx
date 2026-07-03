@@ -135,7 +135,7 @@ export default function ManageFamily() {
   if (families.length === 0) {
     return (
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">
+        <h1 className="font-[var(--font-manrope)] text-2xl font-extrabold text-navy-900">
           Create your family
         </h1>
         <p className="mt-1 text-sm text-slate-600">
@@ -179,7 +179,9 @@ export default function ManageFamily() {
     <div>
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Manage Family</h1>
+          <h1 className="font-[var(--font-manrope)] text-2xl font-extrabold text-navy-900">
+            Manage Family
+          </h1>
           <p className="mt-1 text-sm text-slate-600">{families[0].name}</p>
         </div>
         {isAdmin && (

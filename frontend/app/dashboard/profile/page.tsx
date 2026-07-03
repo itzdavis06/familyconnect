@@ -29,15 +29,16 @@ export default async function Profile() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-slate-900">Profile</h1>
-
+      <h1 className="font-[var(--font-manrope)] text-2xl font-extrabold text-navy-900">
+        Profile
+      </h1>
       <div className="mt-6 max-w-md rounded-xl border border-gray-200 bg-white p-6">
         <div className="flex items-center gap-4">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gray-200 text-lg font-semibold text-slate-700">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-navy-700 text-lg font-semibold text-white">
             {user.username.slice(0, 2).toUpperCase()}
           </div>
           <div>
-            <h2 className="font-bold text-slate-900">
+            <h2 className="font-[var(--font-manrope)] font-bold text-navy-900">
               {user.fullName || user.username}
             </h2>
             <p className="text-sm text-slate-500">@{user.username}</p>
