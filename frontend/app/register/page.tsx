@@ -10,12 +10,24 @@ export default function Register() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent) {
+ async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError("");
 
     if (password !== confirmPassword) {
       setError("Passwords don't match");
+      return;
+    }
+
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters");
+      return;
+    }
+    if (!/[A-Z]/.test(password)) {
+      setError("Password must contain at least one uppercase letter");
+      return;
+    }
+    if (!/[0-9]/.test(password)) {
+      setError("Password must contain at least one number");
       return;
     }
 
@@ -95,6 +107,9 @@ export default function Register() {
               required
               className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
             />
+            <p className="mt-1 text-xs text-slate-500">
+              At least 8 characters, one uppercase letter, one number
+            </p>
           </div>
           <div>
             <label className="text-sm font-medium text-slate-700">
