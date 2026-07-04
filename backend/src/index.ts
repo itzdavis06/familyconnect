@@ -289,6 +289,39 @@ app.get("/api/families/:familyId/members", requireAuth, async (req: AuthedReques
   res.json(result);
 });
 
+app.delete("/api/families/:familyId/members/:memberUserId", requireAuth, async (req: AuthedRequest, res) => {
+  const { familyId, memberUserId } = req.params;
+
+  const requesterMembership = await prisma.familyMember.findUnique({
+    where: { userId_familyId: { userId: req.userId!, familyId } },
+  });
+
+  if (!requesterMembership || requesterMembership.role !== "ADMIN") {
+    return res.status(403).json({ error: "Only family admins can remove members" });
+  }
+
+  const targetMembership = await prisma.familyMember.findUnique({
+    where: { userId_familyId: { userId: memberUserId, familyId } },
+  });
+
+  if (!targetMembership) {
+    return res.status(404).json({ error: "Member not found in this family" });
+  }
+
+  if (targetMembership.id === requesterMembership.id) {
+    return res.status(400).json({ error: "You cannot remove yourself. Transfer admin first." });
+  }
+
+  await prisma.familyMember.updateMany({
+    where: { parentMemberId: targetMembership.id },
+    data: { parentMemberId: null },
+  });
+
+  await prisma.familyMember.delete({ where: { id: targetMembership.id } });
+
+  res.json({ success: true });
+});
+
 app.patch("/api/families/:familyId/members/:memberUserId/parent", requireAuth, async (req: AuthedRequest, res) => {
   const { familyId, memberUserId } = req.params;
   const { parentUserId } = req.body;

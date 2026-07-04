@@ -207,7 +207,15 @@ export default function ManageFamily() {
               className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-xs text-slate-600"
             />
             <button
-              onClick={() => navigator.clipboard.writeText(inviteLink)}
+              onClick={(e) => {
+                const input = (e.target as HTMLElement)
+                  .closest("div")
+                  ?.querySelector("input") as HTMLInputElement;
+                if (input) {
+                  input.select();
+                  document.execCommand("copy");
+                }
+              }}
               className="rounded-lg bg-gray-100 px-3 py-2 text-xs font-semibold text-slate-700"
             >
               Copy
