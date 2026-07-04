@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { API_URL } from "@/lib/api";
 
 interface Family {
   id: string;
@@ -28,9 +29,9 @@ export default function ManageFamily() {
   const [childDob, setChildDob] = useState("");
   const [childError, setChildError] = useState("");
 
-  useEffect(() => {
-    fetch("http://localhost:4000/api/families", { credentials: "include" })
-      .then((res) => res.json())
+ useEffect(() => {
+    fetch(`${API_URL}/api/families`, { credentials: "include" })
+      .then((res) => (res.ok ? res.json() : []))
       .then(setFamilies);
   }, []);
 
@@ -42,7 +43,7 @@ export default function ManageFamily() {
   async function loadMembers() {
     if (!families || families.length === 0) return;
     const res = await fetch(
-      `http://localhost:4000/api/families/${families[0].id}/members`,
+      `${API_URL}/api/families/${families[0].id}/members`,
       { credentials: "include" }
     );
     if (res.ok) setMembers(await res.json());
@@ -52,7 +53,7 @@ export default function ManageFamily() {
     e.preventDefault();
     setError("");
 
-    const res = await fetch("http://localhost:4000/api/families", {
+    const res = await fetch(`${API_URL}/api/families`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -73,7 +74,7 @@ export default function ManageFamily() {
     if (!families || families.length === 0) return;
 
     const res = await fetch(
-      `http://localhost:4000/api/families/${families[0].id}/invitations`,
+      `${API_URL}/api/families/${families[0].id}/invitations`,
       { method: "POST", credentials: "include" }
     );
 
@@ -88,7 +89,7 @@ export default function ManageFamily() {
     if (!families || families.length === 0) return;
 
     await fetch(
-      `http://localhost:4000/api/families/${families[0].id}/members/${memberUserId}/parent`,
+      `${API_URL}/api/families/${families[0].id}/members/${memberUserId}/parent`,
       {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
@@ -107,7 +108,7 @@ export default function ManageFamily() {
     if (!families || families.length === 0) return;
 
     const res = await fetch(
-      `http://localhost:4000/api/families/${families[0].id}/children`,
+      `${API_URL}/api/families/${families[0].id}/children`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -221,7 +222,8 @@ export default function ManageFamily() {
         >
           <div>
             <label className="text-xs font-medium text-slate-700">
-              Child&apos;s full name
+              Child&apos;s full name{" "} 
+
             </label>
             <input
               type="text"
@@ -233,7 +235,7 @@ export default function ManageFamily() {
           </div>
           <div>
             <label className="text-xs font-medium text-slate-700">
-              Date of birth
+              Date of birth{" "}  
             </label>
             <input
               type="date"
@@ -298,3 +300,6 @@ function findUserIdByMemberId(members: Member[], memberId: string) {
   const found = members.find((m) => m.memberId === memberId);
   return found ? found.id : "";
 }
+
+
+

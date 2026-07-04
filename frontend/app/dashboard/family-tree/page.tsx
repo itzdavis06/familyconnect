@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { API_URL } from "@/lib/api";
 
 interface Member {
   id: string | null;
@@ -11,7 +12,7 @@ interface Member {
 }
 
 async function getCurrentFamily(token: string) {
-  const familiesRes = await fetch("http://localhost:4000/api/families", {
+  const familiesRes = await fetch(`${API_URL}/api/families`, {
     headers: { Cookie: `token=${token}` },
     cache: "no-store",
   });
@@ -22,7 +23,7 @@ async function getCurrentFamily(token: string) {
   const family = families[0];
 
   const membersRes = await fetch(
-    `http://localhost:4000/api/families/${family.id}/members`,
+    `${API_URL}/api/families/${family.id}/members`,
     { headers: { Cookie: `token=${token}` }, cache: "no-store" }
   );
 
@@ -111,3 +112,6 @@ export default async function FamilyTree() {
     </div>
   );
 }
+
+
+

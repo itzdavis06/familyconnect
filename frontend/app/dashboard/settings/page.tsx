@@ -1,8 +1,9 @@
 "use client";
+import { API_URL } from "@/lib/api";
 
 export default function Settings() {
   async function handleLogout() {
-    await fetch("http://localhost:4000/api/logout", {
+    await fetch(`${API_URL}/api/logout`, {
       method: "POST",
       credentials: "include",
     });
@@ -57,3 +58,6 @@ export default function Settings() {
     </div>
   );
 }
+
+
+

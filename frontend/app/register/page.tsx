@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { API_URL } from "@/lib/api";
 
 export default function Register() {
   const [username, setUsername] = useState("");
@@ -19,7 +20,7 @@ export default function Register() {
     }
 
     try {
-      const res = await fetch("http://localhost:4000/api/register", {
+      const res = await fetch(`${API_URL}/api/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -128,3 +129,6 @@ export default function Register() {
     </div>
   );
 }
+
+
+

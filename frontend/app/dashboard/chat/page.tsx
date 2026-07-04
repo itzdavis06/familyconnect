@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { API_URL } from "@/lib/api";
 
 interface Message {
   id: string;
@@ -24,11 +25,11 @@ export default function Chat() {
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    fetch("http://localhost:4000/api/me", { credentials: "include" })
+    fetch(`${API_URL}/api/me`, { credentials: "include" })
       .then((res) => res.json())
       .then((user) => setCurrentUserId(user.id));
 
-    fetch("http://localhost:4000/api/families", { credentials: "include" })
+    fetch(`${API_URL}/api/families`, { credentials: "include" })
       .then((res) => res.json())
       .then((families) => {
         if (families.length > 0) setFamily(families[0]);
@@ -40,7 +41,7 @@ export default function Chat() {
 
     async function loadMessages() {
       const res = await fetch(
-        `http://localhost:4000/api/families/${family!.id}/messages`,
+        `${API_URL}/api/families/${family!.id}/messages`,
         { credentials: "include" }
       );
       if (res.ok) setMessages(await res.json());
@@ -60,7 +61,7 @@ export default function Chat() {
     if (!text.trim() || !family) return;
 
     const res = await fetch(
-      `http://localhost:4000/api/families/${family.id}/messages`,
+      `${API_URL}/api/families/${family.id}/messages`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -145,3 +146,6 @@ export default function Chat() {
     </div>
   );
 }
+
+
+

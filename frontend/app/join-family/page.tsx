@@ -2,6 +2,7 @@
 
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+import { API_URL } from "@/lib/api";
 
 function JoinFamilyContent() {
   const searchParams = useSearchParams();
@@ -15,7 +16,7 @@ function JoinFamilyContent() {
     if (!token) return;
     setStatus("loading");
 
-    const res = await fetch(`http://localhost:4000/api/invitations/${token}/accept`, {
+    const res = await fetch(`${API_URL}/api/invitations/${token}/accept`, {
       method: "POST",
       credentials: "include",
     });
@@ -100,3 +101,6 @@ export default function JoinFamily() {
     </div>
   );
 }
+
+
+

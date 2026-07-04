@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { API_URL } from "@/lib/api";
 
 async function getCurrentUser() {
   const cookieStore = await cookies();
@@ -6,7 +7,7 @@ async function getCurrentUser() {
 
   if (!token) return null;
 
-  const res = await fetch("http://localhost:4000/api/me", {
+  const res = await fetch(`${API_URL}/api/me`, {
     headers: { Cookie: `token=${token.value}` },
     cache: "no-store",
   });
@@ -87,3 +88,6 @@ export default async function Profile() {
     </div>
   );
 }
+
+
+

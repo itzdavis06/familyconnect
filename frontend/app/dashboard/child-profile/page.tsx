@@ -1,7 +1,8 @@
 import { cookies } from "next/headers";
+import { API_URL } from "@/lib/api";
 
 async function getChildren(token: string) {
-  const familiesRes = await fetch("http://localhost:4000/api/families", {
+  const familiesRes = await fetch(`${API_URL}/api/families`, {
     headers: { Cookie: `token=${token}` },
     cache: "no-store",
   });
@@ -9,7 +10,7 @@ async function getChildren(token: string) {
   if (!families.length) return [];
 
   const membersRes = await fetch(
-    `http://localhost:4000/api/families/${families[0].id}/members`,
+    `${API_URL}/api/families/${families[0].id}/members`,
     { headers: { Cookie: `token=${token}` }, cache: "no-store" }
   );
   const members = await membersRes.json();
@@ -69,3 +70,6 @@ export default async function ChildProfile() {
     </div>
   );
 }
+
+
+

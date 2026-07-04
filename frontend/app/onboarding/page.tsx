@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { API_URL } from "@/lib/api";
 
 export default function Onboarding() {
   const [fullName, setFullName] = useState("");
@@ -15,7 +16,7 @@ export default function Onboarding() {
     e.preventDefault();
     setError("");
 
-    const res = await fetch("http://localhost:4000/api/me", {
+    const res = await fetch(`${API_URL}/api/me`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
@@ -134,3 +135,6 @@ export default function Onboarding() {
     </div>
   );
 }
+
+
+
