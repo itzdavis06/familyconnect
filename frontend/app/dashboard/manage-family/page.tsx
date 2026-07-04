@@ -27,7 +27,8 @@ export default function ManageFamily() {
   const [inviteLink, setInviteLink] = useState("");
   const [childName, setChildName] = useState("");
   const [childDob, setChildDob] = useState("");
-  const [childError, setChildError] = useState("");
+ const [childError, setChildError] = useState("");
+  const [currentUsername, setCurrentUsername] = useState("");
 
  useEffect(() => {
     fetch(`${API_URL}/api/families`, { credentials: "include" })
@@ -39,6 +40,12 @@ export default function ManageFamily() {
     if (!families || families.length === 0) return;
     loadMembers();
   }, [families]);
+
+  useEffect(() => {
+    fetch(`${API_URL}/api/me`, { credentials: "include" })
+      .then((res) => res.json())
+      .then((user) => setCurrentUsername(user.username));
+  }, []);
 
   async function loadMembers() {
     if (!families || families.length === 0) return;
@@ -97,6 +104,25 @@ export default function ManageFamily() {
         body: JSON.stringify({ parentUserId: parentUserId || null }),
       }
     );
+
+    loadMembers();
+  }
+
+  async function handleRemoveMember(membershipId: string) {
+    if (!families || families.length === 0) return;
+    if (!confirm("Remove this member from the family?")) return;
+
+    const res = await fetch(
+      `${API_URL}/api/families/${families[0].id}/members/by-membership/${membershipId}`,
+      { method: "DELETE", credentials: "include" }
+    );
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert(data.error || "Something went wrong");
+      return;
+    }
 
     loadMembers();
   }
@@ -294,8 +320,17 @@ export default function ManageFamily() {
                         {candidate.fullName || candidate.username}
                       </option>
                     ))}
-                </select>
+              </select>
               </div>
+            )}
+
+           {isAdmin && m.username !== currentUsername && (
+              <button
+                onClick={() => handleRemoveMember(m.memberId)}
+                className="ml-3 text-xs font-medium text-red-600"
+              >
+                Remove
+              </button>
             )}
           </div>
         ))}

@@ -289,8 +289,8 @@ app.get("/api/families/:familyId/members", requireAuth, async (req: AuthedReques
   res.json(result);
 });
 
-app.delete("/api/families/:familyId/members/:memberUserId", requireAuth, async (req: AuthedRequest, res) => {
-  const { familyId, memberUserId } = req.params;
+app.delete("/api/families/:familyId/members/by-membership/:membershipId", requireAuth, async (req: AuthedRequest, res) => {
+  const { familyId, membershipId } = req.params;
 
   const requesterMembership = await prisma.familyMember.findUnique({
     where: { userId_familyId: { userId: req.userId!, familyId } },
@@ -301,10 +301,10 @@ app.delete("/api/families/:familyId/members/:memberUserId", requireAuth, async (
   }
 
   const targetMembership = await prisma.familyMember.findUnique({
-    where: { userId_familyId: { userId: memberUserId, familyId } },
+    where: { id: membershipId },
   });
 
-  if (!targetMembership) {
+  if (!targetMembership || targetMembership.familyId !== familyId) {
     return res.status(404).json({ error: "Member not found in this family" });
   }
 
