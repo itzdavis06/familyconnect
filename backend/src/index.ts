@@ -166,6 +166,79 @@ app.patch("/api/me", requireAuth, async (req: AuthedRequest, res) => {
   }
 });
 
+app.patch("/api/me/password", requireAuth, async (req: AuthedRequest, res) => {
+  const { currentPassword, newPassword } = req.body;
+
+  if (!currentPassword || !newPassword) {
+    return res.status(400).json({ error: "Current and new password are required" });
+  }
+
+  if (newPassword.length < 8) {
+    return res.status(400).json({ error: "New password must be at least 8 characters" });
+  }
+  if (!/[A-Z]/.test(newPassword)) {
+    return res.status(400).json({ error: "New password must contain at least one uppercase letter" });
+  }
+  if (!/[0-9]/.test(newPassword)) {
+    return res.status(400).json({ error: "New password must contain at least one number" });
+  }
+
+  const user = await prisma.user.findUnique({ where: { id: req.userId! } });
+  if (!user) {
+    return res.status(404).json({ error: "User not found" });
+  }
+
+  const valid = await bcrypt.compare(currentPassword, user.passwordHash);
+  if (!valid) {
+    return res.status(401).json({ error: "Current password is incorrect" });
+  }
+
+  const newPasswordHash = await bcrypt.hash(newPassword, 10);
+
+  await prisma.user.update({
+    where: { id: req.userId! },
+    data: { passwordHash: newPasswordHash },
+  });
+
+  res.json({ success: true });
+});
+
+app.delete("/api/me", requireAuth, async (req: AuthedRequest, res) => {
+  const { password } = req.body;
+
+  if (!password) {
+    return res.status(400).json({ error: "Password is required to delete your account" });
+  }
+
+  const user = await prisma.user.findUnique({ where: { id: req.userId! } });
+  if (!user) {
+    return res.status(404).json({ error: "User not found" });
+  }
+
+  const valid = await bcrypt.compare(password, user.passwordHash);
+  if (!valid) {
+    return res.status(401).json({ error: "Incorrect password" });
+  }
+
+  const memberships = await prisma.familyMember.findMany({
+    where: { userId: req.userId! },
+  });
+
+  for (const membership of memberships) {
+    await prisma.familyMember.updateMany({
+      where: { parentMemberId: membership.id },
+      data: { parentMemberId: null },
+    });
+  }
+
+  await prisma.familyMember.deleteMany({ where: { userId: req.userId! } });
+  await prisma.message.deleteMany({ where: { senderId: req.userId! } });
+  await prisma.user.delete({ where: { id: req.userId! } });
+
+  res.clearCookie("token");
+  res.json({ success: true });
+});
+
 app.post("/api/families", requireAuth, async (req: AuthedRequest, res) => {
   const { name } = req.body;
 
