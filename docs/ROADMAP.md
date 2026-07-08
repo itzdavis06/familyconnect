@@ -6,7 +6,7 @@ Running list of features and improvements identified but not yet built.
 
 - **Profile pictures** — let users upload a photo for their profile instead of initials.
   - Decision needed: simple disk storage (quick, but won't survive deployment/redeploys) vs. cloud storage like Cloudinary/S3 (more setup, durable long-term).
-- **1-to-1 direct messaging** — currently only family group chat exists.
+
 - **Real message encryption** — messages are currently stored as plain text in the database.
 - **Deploy to the internet** — move off local network access to a real hosted domain (e.g. Vercel for frontend, Render/Railway for backend, hosted Postgres). Would also remove the need to update `allowedDevOrigins` when switching networks.
 - **Remaining Settings pages** — Privacy & Security, Notifications, Help & Support are still static buttons with no functionality.
@@ -26,3 +26,4 @@ Running list of features and improvements identified but not yet built.
 - Full navy/green/amber styling pass across all pages
 - Local network (phone) access via Next.js API proxy
 - Stronger password requirements (frontend + backend validation)
+- 1-to-1 direct messaging alongside family group chat
