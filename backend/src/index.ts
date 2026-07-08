@@ -547,7 +547,49 @@ app.get("/api/families/:familyId/messages", requireAuth, async (req: AuthedReque
   res.json(result);
 });
 
+app.post("/api/direct-messages/:recipientId", requireAuth, async (req: AuthedRequest, res) => {
+  const { recipientId } = req.params;
+  const { content } = req.body;
 
+  if (!content || !content.trim()) {
+    return res.status(400).json({ error: "Message cannot be empty" });
+  }
+
+  if (recipientId === req.userId) {
+    return res.status(400).json({ error: "You cannot message yourself" });
+  }
+
+  const recipient = await prisma.user.findUnique({ where: { id: recipientId } });
+  if (!recipient) {
+    return res.status(404).json({ error: "Recipient not found" });
+  }
+
+  const message = await prisma.directMessage.create({
+    data: {
+      content: content.trim(),
+      senderId: req.userId!,
+      recipientId,
+    },
+  });
+
+  res.status(201).json(message);
+});
+
+app.get("/api/direct-messages/:otherUserId", requireAuth, async (req: AuthedRequest, res) => {
+  const { otherUserId } = req.params;
+
+  const messages = await prisma.directMessage.findMany({
+    where: {
+      OR: [
+        { senderId: req.userId!, recipientId: otherUserId },
+        { senderId: otherUserId, recipientId: req.userId! },
+      ],
+    },
+    orderBy: { createdAt: "asc" },
+  });
+
+  res.json(messages);
+});
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {

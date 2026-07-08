@@ -24,8 +24,10 @@ model User {
   location     String?
   createdAt    DateTime  @default(now())
 
-  memberships FamilyMember[]
-   messages    Message[]
+   memberships           FamilyMember[]
+  messages               Message[]
+  sentDirectMessages     DirectMessage[] @relation("SentDirectMessages")
+  receivedDirectMessages DirectMessage[] @relation("ReceivedDirectMessages")
 }
 
 model Family {
@@ -86,3 +88,13 @@ model Message {
   sender User   @relation(fields: [senderId], references: [id])
 }
 
+model DirectMessage {
+  id          String   @id @default(uuid())
+  content     String
+  senderId    String
+  recipientId String
+  createdAt   DateTime @default(now())
+
+  sender    User @relation("SentDirectMessages", fields: [senderId], references: [id])
+  recipient User @relation("ReceivedDirectMessages", fields: [recipientId], references: [id])
+}
