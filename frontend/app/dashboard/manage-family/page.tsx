@@ -341,7 +341,7 @@ export default function ManageFamily() {
 
 function findUserIdByMemberId(members: Member[], memberId: string) {
   const found = members.find((m) => m.memberId === memberId);
-  return found ? found.id : "";
+  return found?.id || "";
 }
 
 
