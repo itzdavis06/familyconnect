@@ -81,7 +81,7 @@ function JoinFamilyContent() {
         {status === "loading" ? "Joining..." : "Accept & Join"}
       </button>
       
-        <a href="/login"
+        <a href={`/login?redirect=/join-family?token=${token}`}
         className="mt-3 block text-sm font-medium text-slate-700 underline"
       >
         I need to log in first
