@@ -10,7 +10,7 @@ import { requireAuth, AuthedRequest } from "./auth";
 dotenv.config();
 
 const app = express();
-app.use(cors({ origin: true, credentials: true }));
+app.use(cors({ origin: "https://familyconnect-xi.vercel.app", credentials: true }));
 app.use(cookieParser());
 app.use(express.json());
 
@@ -52,8 +52,8 @@ app.post("/api/register", async (req, res) => {
 
  res.cookie("token", token, {
     httpOnly: true,
-    sameSite: "lax",
-    secure: false,
+    sameSite: "none",
+    secure: true,
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 
@@ -81,10 +81,10 @@ app.post("/api/login", async (req, res) => {
     expiresIn: "7d",
   });
 
- res.cookie("token", token, {
+res.cookie("token", token, {
     httpOnly: true,
-    sameSite: "lax",
-    secure: false,
+    sameSite: "none",
+    secure: true,
     maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 
