@@ -308,7 +308,7 @@ export default function ManageFamily() {
               <div>
                 <label className="mr-2 text-xs text-slate-500">Parent:</label>
                 <select
-                  value={m.parentMemberId ? findUserIdByMemberId(members, m.parentMemberId) : ""}
+                  value={m.parentMemberId ? (findUserIdByMemberId(members, m.parentMemberId) || "") : ""}
                   onChange={(e) => handleParentChange(m.id!, e.target.value)}
                   className="rounded-lg border border-gray-300 px-2 py-1 text-xs"
                 >
