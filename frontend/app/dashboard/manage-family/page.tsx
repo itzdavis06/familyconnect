@@ -88,7 +88,7 @@ export default function ManageFamily() {
     const data = await res.json();
 
     if (res.ok) {
-      setInviteLink(`http://localhost:3000/join-family?token=${data.token}`);
+      setInviteLink(`${window.location.origin}/join-family?token=${data.token}`);
     }
   }
 
