@@ -50,7 +50,7 @@ function MemberNode({ member, members }: { member: Member; members: Member[] }) 
             roleColor[member.role] || "ring-gray-300"
           }`}
         >
-          {(member.fullName || member.username).slice(0, 2).toUpperCase()}
+          {(member.fullName || member.username || "??").slice(0, 2).toUpperCase()}
         </div>
         <span className="text-sm font-medium text-slate-700">
           {member.fullName || member.username}
