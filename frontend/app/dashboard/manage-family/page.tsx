@@ -271,6 +271,39 @@ export default function ManageFamily() {
               Copy
             </button>
           </div>
+
+          <div className="mt-3 flex flex-wrap gap-2">
+            
+             <a href={`https://wa.me/?text=${encodeURIComponent(
+                `Join our family on FamilyConnect: ${inviteLink}`
+              )}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-full bg-green-600 px-4 py-2 text-xs font-semibold text-white"
+            >
+              WhatsApp
+            </a>
+            
+            <a href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+                inviteLink
+              )}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-full bg-navy-700 px-4 py-2 text-xs font-semibold text-white"
+            >
+              Facebook
+            </a>
+            
+            <a href={`mailto:?subject=${encodeURIComponent(
+                "Join our family on FamilyConnect"
+              )}&body=${encodeURIComponent(
+                `You've been invited to join our family on FamilyConnect: ${inviteLink}`
+              )}`}
+              className="rounded-full border border-gray-300 px-4 py-2 text-xs font-semibold text-slate-700"
+            >
+              Email
+            </a>
+          </div>
         </div>
       )}
      {isAdmin && (
