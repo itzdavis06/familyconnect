@@ -81,6 +81,11 @@ function JoinFamilyContent() {
         {status === "loading" ? "Joining..." : "Accept & Join"}
       </button>
       
+        <a href={`/register?redirect=/join-family?token=${token}`}
+        className="mt-3 block rounded-full border border-navy-700 px-5 py-2.5 text-sm font-semibold text-navy-700"
+      >
+        Create account &amp; join
+      </a>
         <a href={`/login?redirect=/join-family?token=${token}`}
         className="mt-3 block text-sm font-medium text-slate-700 underline"
       >
