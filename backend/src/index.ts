@@ -405,6 +405,33 @@ app.delete("/api/families/:familyId/members/by-membership/:membershipId", requir
   res.json({ success: true });
 });
 
+app.post("/api/families/:familyId/leave", requireAuth, async (req: AuthedRequest, res) => {
+  const { familyId } = req.params;
+
+  const membership = await prisma.familyMember.findUnique({
+    where: { userId_familyId: { userId: req.userId!, familyId } },
+  });
+
+  if (!membership) {
+    return res.status(404).json({ error: "You're not a member of this family" });
+  }
+
+  if (membership.role === "ADMIN") {
+    return res.status(400).json({
+      error: "Admins cannot leave a family. Transfer admin to someone else first, or delete the family.",
+    });
+  }
+
+  await prisma.familyMember.updateMany({
+    where: { parentMemberId: membership.id },
+    data: { parentMemberId: null },
+  });
+
+  await prisma.familyMember.delete({ where: { id: membership.id } });
+
+  res.json({ success: true });
+});
+
 app.patch("/api/families/:familyId/members/:memberUserId/parent", requireAuth, async (req: AuthedRequest, res) => {
   const { familyId, memberUserId } = req.params;
   const { parentUserId } = req.body;
