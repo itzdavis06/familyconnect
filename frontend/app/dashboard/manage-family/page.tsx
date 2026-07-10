@@ -127,6 +127,25 @@ export default function ManageFamily() {
     loadMembers();
   }
 
+  async function handleLeaveFamily() {
+    if (!families || families.length === 0) return;
+    if (!confirm("Are you sure you want to leave this family?")) return;
+
+    const res = await fetch(
+      `${API_URL}/api/families/${families[0].id}/leave`,
+      { method: "POST", credentials: "include" }
+    );
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert(data.error || "Something went wrong");
+      return;
+    }
+
+    window.location.href = "/dashboard";
+  }
+
   async function handleAddChild(e: React.FormEvent) {
     e.preventDefault();
     setChildError("");
@@ -204,19 +223,24 @@ export default function ManageFamily() {
 
   return (
     <div>
-      <div className="flex items-center justify-between">
+     <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-[var(--font-manrope)] text-2xl font-extrabold text-navy-900">
-            Manage Family
-          </h1>
+          <h1 className="text-2xl font-bold text-slate-900">Manage Family</h1>
           <p className="mt-1 text-sm text-slate-600">{families[0].name}</p>
         </div>
-        {isAdmin && (
+        {isAdmin ? (
           <button
             onClick={handleInvite}
             className="rounded-full bg-navy-700 px-5 py-2.5 text-sm font-semibold text-white"
           >
             + Invite Member
+          </button>
+        ) : (
+          <button
+            onClick={handleLeaveFamily}
+            className="rounded-full border border-red-600 px-5 py-2.5 text-sm font-semibold text-red-600"
+          >
+            Leave Family
           </button>
         )}
       </div>
