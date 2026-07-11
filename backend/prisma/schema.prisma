@@ -48,6 +48,7 @@ model FamilyMember {
   parentMemberId  String?
   childFullName   String?
   childDateOfBirth DateTime?
+  dateOfDeath     DateTime?
   createdByUserId String?
 
   user     User?         @relation(fields: [userId], references: [id])
@@ -63,6 +64,7 @@ enum Role {
   PARENT
   MEMBER
   CHILD
+  ANCESTOR
 }
 
 model Invitation {

@@ -366,7 +366,9 @@ app.get("/api/families/:familyId/members", requireAuth, async (req: AuthedReques
     fullName: m.user ? m.user.fullName : m.childFullName,
     role: m.role,
     parentMemberId: m.parentMemberId,
-    isChild: !m.user,
+    isChild: !m.user && m.role === "CHILD",
+    isAncestor: !m.user && m.role === "ANCESTOR",
+    dateOfDeath: m.dateOfDeath,
   }));
 
   res.json(result);
@@ -510,6 +512,51 @@ app.post("/api/families/:familyId/children", requireAuth, async (req: AuthedRequ
   });
 
   res.status(201).json({ id: child.id, fullName: child.childFullName });
+});
+
+app.post("/api/families/:familyId/ancestors", requireAuth, async (req: AuthedRequest, res) => {
+  const { familyId } = req.params;
+  const { fullName, dateOfBirth, dateOfDeath, childMemberId } = req.body;
+
+  if (!fullName) {
+    return res.status(400).json({ error: "Full name is required" });
+  }
+
+  if (dateOfBirth) {
+    const dob = new Date(dateOfBirth);
+    if (dob > new Date()) {
+      return res.status(400).json({ error: "Date of birth cannot be in the future" });
+    }
+  }
+
+  const requesterMembership = await prisma.familyMember.findUnique({
+    where: { userId_familyId: { userId: req.userId!, familyId } },
+  });
+
+  if (!requesterMembership || requesterMembership.role !== "ADMIN") {
+    return res.status(403).json({ error: "Only family admins can add an ancestor" });
+  }
+
+  const ancestor = await prisma.familyMember.create({
+    data: {
+      familyId,
+      role: "ANCESTOR",
+      childFullName: fullName,
+      childDateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null,
+      dateOfDeath: dateOfDeath ? new Date(dateOfDeath) : null,
+      createdByUserId: req.userId!,
+    },
+  });
+
+  // If a specific descendant was chosen, link that person's parent to this new ancestor
+  if (childMemberId) {
+    await prisma.familyMember.update({
+      where: { id: childMemberId },
+      data: { parentMemberId: ancestor.id },
+    });
+  }
+
+  res.status(201).json({ id: ancestor.id, fullName: ancestor.childFullName });
 });
 
 app.post("/api/families/:familyId/messages", requireAuth, async (req: AuthedRequest, res) => {
