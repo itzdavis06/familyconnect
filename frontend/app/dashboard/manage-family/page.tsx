@@ -541,11 +541,14 @@ export default function ManageFamily() {
                       >
                         <option value="">+ Add parent</option>
                         {members
-                          .filter(
-                            (candidate) =>
+                          .filter((candidate) => {
+                            const descendants = getDescendantIds(m.memberId, members);
+                            return (
                               candidate.memberId !== m.memberId &&
-                              !(m.parentMemberIds || []).includes(candidate.memberId)
-                          )
+                              !(m.parentMemberIds || []).includes(candidate.memberId) &&
+                              !descendants.has(candidate.memberId)
+                            );
+                          })
                           .map((candidate) => (
                             <option key={candidate.memberId} value={candidate.memberId}>
                               {candidate.fullName || candidate.username}
@@ -574,6 +577,23 @@ export default function ManageFamily() {
 function findUserIdByMemberId(members: Member[], memberId: string) {
   const found = members.find((m) => m.memberId === memberId);
   return found?.id || "";
+}
+
+function getDescendantIds(memberId: string, members: Member[]): Set<string> {
+  const descendants = new Set<string>();
+  const queue = [memberId];
+
+  while (queue.length > 0) {
+    const current = queue.shift()!;
+    for (const m of members) {
+      if (m.parentMemberIds?.includes(current) && !descendants.has(m.memberId)) {
+        descendants.add(m.memberId);
+        queue.push(m.memberId);
+      }
+    }
+  }
+
+  return descendants;
 }
 
 

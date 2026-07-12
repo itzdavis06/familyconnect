@@ -9,6 +9,19 @@ import { requireAuth, AuthedRequest } from "./auth";
 
 dotenv.config();
 
+async function isDescendant(potentialDescendantId: string, ofPersonId: string): Promise<boolean> {
+  const directChildren = await prisma.parentLink.findMany({
+    where: { parentId: ofPersonId },
+  });
+
+  for (const link of directChildren) {
+    if (link.childId === potentialDescendantId) return true;
+    if (await isDescendant(potentialDescendantId, link.childId)) return true;
+  }
+
+  return false;
+}
+
 const app = express();
 app.use(cors({ origin: "https://familyconnect-xi.vercel.app", credentials: true }));
 app.use(cookieParser());
@@ -402,6 +415,10 @@ app.post("/api/families/:familyId/members/:memberUserId/parents", requireAuth, a
 
   if (parentMember.id === targetMember.id) {
     return res.status(400).json({ error: "A member cannot be their own parent" });
+  }
+
+  if (await isDescendant(parentMember.id, targetMember.id)) {
+    return res.status(400).json({ error: "This would create a circular family relationship" });
   }
 
   const existing = await prisma.parentLink.findUnique({
