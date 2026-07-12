@@ -490,7 +490,7 @@ export default function ManageFamily() {
               <div>
                   <label className="mr-2 text-xs text-slate-500">Parent:</label>
                 <select
-                  value={m.parentMemberId ? (findUserIdByMemberId(members, m.parentMemberId) || "") : ""}
+                  value={m.parentMemberId ? (findUserIdByMemberId(members, m.parentMemberId) || "") : ""}>
                   <div className="mt-1 flex flex-wrap items-center gap-1">
                     {(m.parentMemberIds || []).map((pid) => {
                       const parentMember = members.find(
@@ -528,11 +528,13 @@ export default function ManageFamily() {
                           <option key={candidate.memberId} value={candidate.id || candidate.memberId}>
                             {candidate.fullName || candidate.username}
                           </option>
-                        ))}
+                        )
+                      )}
                     </select>
                   </div>
-                </div>
-              )}
+                </select>
+              </div>
+            )}
            {isAdmin && m.username !== currentUsername && (
               <button
                 onClick={() => handleRemoveMember(m.memberId)}
