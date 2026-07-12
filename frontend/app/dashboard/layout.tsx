@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { API_URL } from "@/lib/api";
+import MobileNav from "@/components/MobileNav";
 
 async function getCurrentUser() {
   const cookieStore = await cookies();
@@ -50,7 +51,7 @@ export default async function DashboardLayout({
 
   return (
     <div className="flex min-h-screen bg-cream-50">
-      <aside className="w-56 border-r border-gray-200 bg-white p-4">
+      <aside className="hidden w-56 border-r border-gray-200 bg-white p-4 md:block">
         <div className="mb-8 font-[var(--font-manrope)] text-lg font-extrabold text-navy-700">
           FamilyConnect
         </div>
@@ -81,9 +82,12 @@ export default async function DashboardLayout({
 
       <div className="flex-1">
        <header className="flex items-center justify-between border-b border-gray-200 bg-white px-6 py-4">
-          <span className="text-sm font-semibold text-navy-700">
-            {currentFamily ? currentFamily.name : "No family yet"}
-          </span>
+            <div className="flex items-center gap-3">
+              <MobileNav />
+              <span className="text-sm font-semibold text-navy-700">
+                {currentFamily ? currentFamily.name : "No family yet"}
+              </span>
+            </div>
           <div className="flex items-center gap-2">
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-navy-700 text-xs font-semibold text-white">
               {user.username.slice(0, 2).toUpperCase()}
