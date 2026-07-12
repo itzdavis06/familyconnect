@@ -118,7 +118,7 @@ export default function ManageFamily() {
       loadMembers();
     }
 
-    async function handleRemoveParent(memberUserId: string, parentUserId: string) {
+ async function handleRemoveParent(memberUserId: string, parentUserId: string) {
       if (!families || families.length === 0) return;
       await fetch(
         `${API_URL}/api/families/${families[0].id}/members/${memberUserId}/parents/${parentUserId}`,
@@ -127,6 +127,33 @@ export default function ManageFamily() {
       loadMembers();
     }
 
+ async function handleAddParentByMemberId(memberId: string, parentMemberId: string) {
+      if (!families || families.length === 0 || !parentMemberId) return;
+      const res = await fetch(
+        `${API_URL}/api/families/${families[0].id}/members-by-id/${memberId}/parents`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ parentMemberId }),
+        }
+      );
+      const data = await res.json();
+      if (!res.ok) {
+        alert(data.error || "Something went wrong");
+        return;
+      }
+      loadMembers();
+    }
+
+  async function handleRemoveParentByMemberId(memberId: string, parentMemberId: string) {
+      if (!families || families.length === 0) return;
+      await fetch(
+        `${API_URL}/api/families/${families[0].id}/members-by-id/${memberId}/parents/${parentMemberId}`,
+        { method: "DELETE", credentials: "include" }
+      );
+      loadMembers();
+    }
   async function handleRemoveMember(membershipId: string) {
     if (!families || families.length === 0) return;
     if (!confirm("Remove this member from the family?")) return;
@@ -485,46 +512,45 @@ export default function ManageFamily() {
               <p className="text-xs text-slate-500">{m.role}</p>
             </div>
 
-            {isAdmin && !m.isChild && !m.isAncestor && (
-              <div>
-                  <div className="mt-1 flex flex-wrap items-center gap-1">
-                    {(m.parentMemberIds || []).map((pid) => {
-                      const parentMember = members.find(
-                        (candidate) => candidate.memberId === pid
-                      );
-                      return (
-                        <span
+           {isAdmin && !m.isAncestor && (
+                <div>
+                    <div className="mt-1 flex flex-wrap items-center gap-1">
+                      {(m.parentMemberIds || []).map((pid) => {
+                        const parentMember = members.find(
+                          (candidate) => candidate.memberId === pid
+                        );
+                        return (
+                          <span
                           key={pid}
                           className="flex items-center gap-1 rounded-full bg-gray-100 px-2 py-1 text-xs text-slate-700"
                         >
                           {parentMember?.fullName || parentMember?.username || "Unknown"}
                           <button
-                            onClick={() => handleRemoveParent(m.id!, parentMember?.id!)}
-                            className="text-red-500"
-                          >
-                            &times;
+                            onClick={() => handleRemoveParentByMemberId(m.memberId, pid)}
+                              className="text-red-500"
+                            >
+                              &times;
                           </button>
                         </span>
                       );
                     })}
                     <select
-                      value=""
-                      onChange={(e) => handleAddParent(m.id!, e.target.value)}
-                      className="rounded-lg border border-gray-300 px-2 py-1 text-xs"
-                    >
-                      <option value="">+ Add parent</option>
-                      {members
-                        .filter(
-                          (candidate) =>
-                            !candidate.isChild &&
-                            candidate.id !== m.id &&
-                            !(m.parentMemberIds || []).includes(candidate.memberId)
-                        )
-                        .map((candidate) => (
-                          <option key={candidate.memberId} value={candidate.id || candidate.memberId}>
-                            {candidate.fullName || candidate.username}
-                          </option>
-                        ))}
+                        value=""
+                        onChange={(e) => handleAddParentByMemberId(m.memberId, e.target.value)}
+                        className="rounded-lg border border-gray-300 px-2 py-1 text-xs"
+                      >
+                        <option value="">+ Add parent</option>
+                        {members
+                          .filter(
+                            (candidate) =>
+                              candidate.memberId !== m.memberId &&
+                              !(m.parentMemberIds || []).includes(candidate.memberId)
+                          )
+                          .map((candidate) => (
+                            <option key={candidate.memberId} value={candidate.memberId}>
+                              {candidate.fullName || candidate.username}
+                            </option>
+                          ))}
                     </select>
                   </div>
                 </div>
