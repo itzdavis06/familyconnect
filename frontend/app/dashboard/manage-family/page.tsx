@@ -358,7 +358,6 @@ export default function ManageFamily() {
           </div>
         </div>
       )}
-     {(isAdmin || isParent) && (
         <form
           onSubmit={handleAddChild}
           className="mt-6 flex max-w-2xl flex-wrap items-end gap-3 rounded-xl border border-gray-200 bg-white p-4"
@@ -399,8 +398,7 @@ export default function ManageFamily() {
             <p className="w-full text-sm text-red-600">{childError}</p>
           )}
         </form>
-      )}
-
+      
 {isAdmin && (
         <form
           onSubmit={handleAddAncestor}

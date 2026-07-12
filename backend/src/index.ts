@@ -526,8 +526,8 @@ app.post("/api/families/:familyId/children", requireAuth, async (req: AuthedRequ
     where: { userId_familyId: { userId: req.userId!, familyId } },
   });
 
-  if (!requesterMembership || (requesterMembership.role !== "ADMIN" && requesterMembership.role !== "PARENT")) {
-    return res.status(403).json({ error: "Only admins and parents can add a child profile" });
+ if (!requesterMembership) {
+    return res.status(403).json({ error: "You're not a member of this family" });
   }
 
   const child = await prisma.familyMember.create({
