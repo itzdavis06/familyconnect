@@ -474,9 +474,9 @@ export default function ManageFamily() {
               <p className="text-xs text-slate-500">{m.role}</p>
             </div>
 
-            {isAdmin && !m.isChild && (
+            {isAdmin && !m.isChild && !m.isAncestor && (
               <div>
-                <label className="mr-2 text-xs text-slate-500">Parent:</label>
+                  <label className="mr-2 text-xs text-slate-500">Parent:</label>
                 <select
                   value={m.parentMemberId ? (findUserIdByMemberId(members, m.parentMemberId) || "") : ""}
                   onChange={(e) => handleParentChange(m.id!, e.target.value)}
