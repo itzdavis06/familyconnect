@@ -39,7 +39,10 @@ const roleColor: Record<string, string> = {
 
 function PersonBox({ member }: { member: Member }) {
   return (
-    <div className="flex flex-col items-center gap-1">
+    
+      <a href={`/dashboard/member/${member.memberId}`}
+      className="flex flex-col items-center gap-1 hover:opacity-80"
+    >
       <div
         className={`flex h-14 w-14 items-center justify-center rounded-full bg-white text-sm font-semibold text-slate-700 shadow ring-2 ${
           roleColor[member.role] || "ring-gray-300"
@@ -54,7 +57,7 @@ function PersonBox({ member }: { member: Member }) {
         {member.role}
         {member.dateOfDeath && ` \u2022 d. ${new Date(member.dateOfDeath).getFullYear()}`}
       </span>
-    </div>
+    </a>
   );
 }
 

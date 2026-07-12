@@ -506,10 +506,12 @@ export default function ManageFamily() {
             className="flex items-center justify-between border-b border-gray-100 p-4 last:border-b-0"
           >
             <div>
-              <p className="text-sm font-semibold text-slate-800">
-                {m.fullName || m.username}
-              </p>
-              <p className="text-xs text-slate-500">{m.role}</p>
+              <a href={`/dashboard/member/${m.memberId}`}
+                  className="text-sm font-semibold text-slate-800 hover:underline"
+                >
+                  {m.fullName || m.username}
+                </a>
+                <p className="text-xs text-slate-500">{m.role}</p>
             </div>
 
            {isAdmin && (
