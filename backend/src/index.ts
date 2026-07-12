@@ -482,6 +482,64 @@ app.delete("/api/families/:familyId/members/by-membership/:membershipId", requir
   res.json({ success: true });
 });
 
+app.post("/api/families/:familyId/members-by-id/:memberId/parents", requireAuth, async (req: AuthedRequest, res) => {
+  const { familyId, memberId } = req.params;
+  const { parentMemberId } = req.body;
+
+  const requesterMembership = await prisma.familyMember.findUnique({
+    where: { userId_familyId: { userId: req.userId!, familyId } },
+  });
+
+  if (!requesterMembership || requesterMembership.role !== "ADMIN") {
+    return res.status(403).json({ error: "Only family admins can edit the family tree" });
+  }
+
+  const targetMember = await prisma.familyMember.findUnique({ where: { id: memberId } });
+  const parentMember = await prisma.familyMember.findUnique({ where: { id: parentMemberId } });
+
+  if (!targetMember || targetMember.familyId !== familyId) {
+    return res.status(404).json({ error: "Member not found in this family" });
+  }
+  if (!parentMember || parentMember.familyId !== familyId) {
+    return res.status(404).json({ error: "Parent not found in this family" });
+  }
+  if (targetMember.id === parentMember.id) {
+    return res.status(400).json({ error: "A member cannot be their own parent" });
+  }
+
+  const existing = await prisma.parentLink.findUnique({
+    where: { parentId_childId: { parentId: parentMember.id, childId: targetMember.id } },
+  });
+
+  if (existing) {
+    return res.status(409).json({ error: "This parent link already exists" });
+  }
+
+  await prisma.parentLink.create({
+    data: { parentId: parentMember.id, childId: targetMember.id },
+  });
+
+  res.json({ success: true });
+});
+
+app.delete("/api/families/:familyId/members-by-id/:memberId/parents/:parentMemberId", requireAuth, async (req: AuthedRequest, res) => {
+  const { familyId, memberId, parentMemberId } = req.params;
+
+  const requesterMembership = await prisma.familyMember.findUnique({
+    where: { userId_familyId: { userId: req.userId!, familyId } },
+  });
+
+  if (!requesterMembership || requesterMembership.role !== "ADMIN") {
+    return res.status(403).json({ error: "Only family admins can edit the family tree" });
+  }
+
+  await prisma.parentLink.deleteMany({
+    where: { parentId: parentMemberId, childId: memberId },
+  });
+
+  res.json({ success: true });
+});
+
 app.post("/api/families/:familyId/leave", requireAuth, async (req: AuthedRequest, res) => {
   const { familyId } = req.params;
 
