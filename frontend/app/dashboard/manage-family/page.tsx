@@ -490,50 +490,27 @@ export default function ManageFamily() {
               <div>
                   <label className="mr-2 text-xs text-slate-500">Parent:</label>
                 <select
-                  value={m.parentMemberId ? (findUserIdByMemberId(members, m.parentMemberId) || "") : ""}></select>
-                  <div className="mt-1 flex flex-wrap items-center gap-1">
-                    {(m.parentMemberIds || []).map((pid) => {
-                      const parentMember = members.find(
-                        (candidate) => candidate.memberId === pid
-                      );
-                      return (
-                        <span
-                          key={pid}
-                          className="flex items-center gap-1 rounded-full bg-gray-100 px-2 py-1 text-xs text-slate-700"
-                        >
-                          {parentMember?.fullName || parentMember?.username || "Unknown"}
-                          <button
-                            onClick={() => handleRemoveParent(m.id!, parentMember?.id!)}
-                            className="text-red-500"
-                          >
-                            &times;
-                          </button>
-                        </span>
-                      );
-                    })}
-                    <select
-                      value=""
-                      onChange={(e) => handleAddParent(m.id!, e.target.value)}
-                      className="rounded-lg border border-gray-300 px-2 py-1 text-xs"
-                    >
-                      <option value="">+ Add parent</option>
-                      {members
-                        .filter(
-                          (candidate) =>
-                            !candidate.isChild &&
-                            candidate.id !== m.id &&
-                            !(m.parentMemberIds || []).includes(candidate.memberId)
-                        )
-                        .map((candidate) => (
-                          <option key={candidate.memberId} value={candidate.id || candidate.memberId}>
-                            {candidate.fullName || candidate.username}
-                          </option>
-                        )
-                      )}
-                    </select>
-                  </div>
+                  value={m.parentMemberId ? (findUserIdByMemberId(members, m.parentMemberId) || "") : ""}
+                  onChange={(e) => handleParentChange(m.id!, e.target.value)}
+                  className="rounded-lg border border-gray-300 px-2 py-1 text-xs"
+                >
+                  <option value="">No parent</option>
+                 {members
+                    .filter(
+                        (candidate) =>
+                          !candidate.isChild &&
+                          !candidate.isAncestor &&
+                          candidate.id !== m.id
+                      )
+                    .map((candidate) => (
+                      <option key={candidate.memberId} value={candidate.id!}>
+                        {candidate.fullName || candidate.username}
+                      </option>
+                    ))}
+              </select>
               </div>
             )}
+
            {isAdmin && m.username !== currentUsername && (
               <button
                 onClick={() => handleRemoveMember(m.memberId)}
