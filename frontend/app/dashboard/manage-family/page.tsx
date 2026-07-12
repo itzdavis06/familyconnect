@@ -512,7 +512,7 @@ export default function ManageFamily() {
               <p className="text-xs text-slate-500">{m.role}</p>
             </div>
 
-           {isAdmin && !m.isAncestor && (
+           {isAdmin && (
                 <div>
                     <div className="mt-1 flex flex-wrap items-center gap-1">
                       {(m.parentMemberIds || []).map((pid) => {
