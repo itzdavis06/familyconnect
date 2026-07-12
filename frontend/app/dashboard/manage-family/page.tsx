@@ -99,7 +99,7 @@ export default function ManageFamily() {
     }
   }
 
- async function handleAddParent(memberUserId: string, parentUserId: string) {
+  async function handleAddParent(memberUserId: string, parentUserId: string) {
       if (!families || families.length === 0 || !parentUserId) return;
       const res = await fetch(
         `${API_URL}/api/families/${families[0].id}/members/${memberUserId}/parents`,
@@ -491,7 +491,7 @@ export default function ManageFamily() {
                   <label className="mr-2 text-xs text-slate-500">Parent:</label>
                 <select
                   value={m.parentMemberId ? (findUserIdByMemberId(members, m.parentMemberId) || "") : ""}
-                <div className="mt-1 flex flex-wrap items-center gap-1">
+                  <div className="mt-1 flex flex-wrap items-center gap-1">
                     {(m.parentMemberIds || []).map((pid) => {
                       const parentMember = members.find(
                         (candidate) => candidate.memberId === pid
@@ -533,7 +533,6 @@ export default function ManageFamily() {
                   </div>
                 </div>
               )}
-
            {isAdmin && m.username !== currentUsername && (
               <button
                 onClick={() => handleRemoveMember(m.memberId)}
