@@ -555,6 +555,40 @@ app.delete("/api/families/:familyId/members-by-id/:memberId/parents/:parentMembe
   res.json({ success: true });
 });
 
+app.get("/api/families/:familyId/members/:memberId/profile", requireAuth, async (req: AuthedRequest, res) => {
+  const { familyId, memberId } = req.params;
+
+  const requesterMembership = await prisma.familyMember.findUnique({
+    where: { userId_familyId: { userId: req.userId!, familyId } },
+  });
+
+  if (!requesterMembership) {
+    return res.status(403).json({ error: "You're not a member of this family" });
+  }
+
+  const member = await prisma.familyMember.findUnique({
+    where: { id: memberId },
+    include: { user: true },
+  });
+
+  if (!member || member.familyId !== familyId) {
+    return res.status(404).json({ error: "Member not found in this family" });
+  }
+
+  res.json({
+    fullName: member.user ? member.user.fullName : member.childFullName,
+    username: member.user?.username || null,
+    role: member.role,
+    dateOfBirth: member.user ? member.user.dateOfBirth : member.childDateOfBirth,
+    occupation: member.user?.occupation || null,
+    location: member.user?.location || null,
+    memberSince: member.user?.createdAt || null,
+    dateOfDeath: member.dateOfDeath,
+    isChild: !member.user && member.role === "CHILD",
+    isAncestor: !member.user && member.role === "ANCESTOR",
+  });
+});
+
 app.post("/api/families/:familyId/leave", requireAuth, async (req: AuthedRequest, res) => {
   const { familyId } = req.params;
 
