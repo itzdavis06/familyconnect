@@ -373,6 +373,82 @@ app.get("/api/families/:familyId/members", requireAuth, async (req: AuthedReques
   res.json(result);
 });
 
+app.post("/api/families/:familyId/members/:memberUserId/parents", requireAuth, async (req: AuthedRequest, res) => {
+  const { familyId, memberUserId } = req.params;
+  const { parentUserId } = req.body;
+
+  const requesterMembership = await prisma.familyMember.findUnique({
+    where: { userId_familyId: { userId: req.userId!, familyId } },
+  });
+
+  if (!requesterMembership || requesterMembership.role !== "ADMIN") {
+    return res.status(403).json({ error: "Only family admins can edit the family tree" });
+  }
+
+  const targetMember = await prisma.familyMember.findUnique({
+    where: { userId_familyId: { userId: memberUserId, familyId } },
+  });
+
+  if (!targetMember) {
+    return res.status(404).json({ error: "Member not found in this family" });
+  }
+
+  const parentMember = await prisma.familyMember.findUnique({
+    where: { userId_familyId: { userId: parentUserId, familyId } },
+  });
+
+  if (!parentMember) {
+    return res.status(404).json({ error: "Parent member not found in this family" });
+  }
+
+  if (parentMember.id === targetMember.id) {
+    return res.status(400).json({ error: "A member cannot be their own parent" });
+  }
+
+  const existing = await prisma.parentLink.findUnique({
+    where: { parentId_childId: { parentId: parentMember.id, childId: targetMember.id } },
+  });
+
+  if (existing) {
+    return res.status(409).json({ error: "This parent link already exists" });
+  }
+
+  await prisma.parentLink.create({
+    data: { parentId: parentMember.id, childId: targetMember.id },
+  });
+
+  res.json({ success: true });
+});
+
+app.delete("/api/families/:familyId/members/:memberUserId/parents/:parentUserId", requireAuth, async (req: AuthedRequest, res) => {
+  const { familyId, memberUserId, parentUserId } = req.params;
+
+  const requesterMembership = await prisma.familyMember.findUnique({
+    where: { userId_familyId: { userId: req.userId!, familyId } },
+  });
+
+  if (!requesterMembership || requesterMembership.role !== "ADMIN") {
+    return res.status(403).json({ error: "Only family admins can edit the family tree" });
+  }
+
+  const targetMember = await prisma.familyMember.findUnique({
+    where: { userId_familyId: { userId: memberUserId, familyId } },
+  });
+  const parentMember = await prisma.familyMember.findUnique({
+    where: { userId_familyId: { userId: parentUserId, familyId } },
+  });
+
+  if (!targetMember || !parentMember) {
+    return res.status(404).json({ error: "Member not found in this family" });
+  }
+
+  await prisma.parentLink.deleteMany({
+    where: { parentId: parentMember.id, childId: targetMember.id },
+  });
+
+  res.json({ success: true });
+});
+
 app.delete("/api/families/:familyId/members/by-membership/:membershipId", requireAuth, async (req: AuthedRequest, res) => {
   const { familyId, membershipId } = req.params;
 
@@ -429,51 +505,6 @@ app.post("/api/families/:familyId/leave", requireAuth, async (req: AuthedRequest
   });
 
   await prisma.familyMember.delete({ where: { id: membership.id } });
-
-  res.json({ success: true });
-});
-
-app.patch("/api/families/:familyId/members/:memberUserId/parent", requireAuth, async (req: AuthedRequest, res) => {
-  const { familyId, memberUserId } = req.params;
-  const { parentUserId } = req.body;
-
-  const requesterMembership = await prisma.familyMember.findUnique({
-    where: { userId_familyId: { userId: req.userId!, familyId } },
-  });
-
-  if (!requesterMembership || requesterMembership.role !== "ADMIN") {
-    return res.status(403).json({ error: "Only family admins can edit the family tree" });
-  }
-
-  const targetMember = await prisma.familyMember.findUnique({
-    where: { userId_familyId: { userId: memberUserId, familyId } },
-  });
-
-  if (!targetMember) {
-    return res.status(404).json({ error: "Member not found in this family" });
-  }
-
-  let parentMemberId: string | null = null;
-
-  if (parentUserId) {
-    const parentMember = await prisma.familyMember.findUnique({
-      where: { userId_familyId: { userId: parentUserId, familyId } },
-    });
-
-    if (!parentMember) {
-      return res.status(404).json({ error: "Parent member not found in this family" });
-    }
-    if (parentMember.id === targetMember.id) {
-      return res.status(400).json({ error: "A member cannot be their own parent" });
-    }
-
-    parentMemberId = parentMember.id;
-  }
-
-  await prisma.familyMember.update({
-    where: { id: targetMember.id },
-    data: { parentMemberId },
-  });
 
   res.json({ success: true });
 });
