@@ -355,22 +355,21 @@ app.get("/api/families/:familyId/members", requireAuth, async (req: AuthedReques
   }
 
  const members = await prisma.familyMember.findMany({
-    where: { familyId },
-    include: { user: true },
-  });
-
+      where: { familyId },
+      include: { user: true, parentLinksAsChild: true },
+    });
   const result = members.map((m) => ({
-    id: m.user ? m.user.id : null,
-    memberId: m.id,
-    username: m.user ? m.user.username : null,
-    fullName: m.user ? m.user.fullName : m.childFullName,
-    role: m.role,
-    parentMemberId: m.parentMemberId,
-    isChild: !m.user && m.role === "CHILD",
-    isAncestor: !m.user && m.role === "ANCESTOR",
-    dateOfDeath: m.dateOfDeath,
-  }));
-
+      id: m.user ? m.user.id : null,
+      memberId: m.id,
+      username: m.user ? m.user.username : null,
+      fullName: m.user ? m.user.fullName : m.childFullName,
+      role: m.role,
+      parentMemberIds: m.parentLinksAsChild.map((link) => link.parentId),
+      isChild: !m.user && m.role === "CHILD",
+      isAncestor: !m.user && m.role === "ANCESTOR",
+      dateOfDeath: m.dateOfDeath,
+    }));
+    
   res.json(result);
 });
 

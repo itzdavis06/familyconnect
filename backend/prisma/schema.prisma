@@ -45,7 +45,6 @@ model FamilyMember {
   role            Role
   userId          String?
   familyId        String
-  parentMemberId  String?
   childFullName   String?
   childDateOfBirth DateTime?
   dateOfDeath     DateTime?
@@ -53,10 +52,22 @@ model FamilyMember {
 
   user     User?         @relation(fields: [userId], references: [id])
   family   Family        @relation(fields: [familyId], references: [id])
-  parent   FamilyMember? @relation("ParentChild", fields: [parentMemberId], references: [id])
-  children FamilyMember[] @relation("ParentChild")
+
+  parentLinksAsChild  ParentLink[] @relation("LinkAsChild")
+  parentLinksAsParent ParentLink[] @relation("LinkAsParent")
 
   @@unique([userId, familyId])
+}
+
+model ParentLink {
+  id       String @id @default(uuid())
+  parentId String
+  childId  String
+
+  parent FamilyMember @relation("LinkAsParent", fields: [parentId], references: [id])
+  child  FamilyMember @relation("LinkAsChild", fields: [childId], references: [id])
+
+  @@unique([parentId, childId])
 }
 
 enum Role {
