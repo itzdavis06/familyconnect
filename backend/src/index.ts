@@ -225,11 +225,10 @@ app.delete("/api/me", requireAuth, async (req: AuthedRequest, res) => {
   });
 
   for (const membership of memberships) {
-    await prisma.familyMember.updateMany({
-      where: { parentMemberId: membership.id },
-      data: { parentMemberId: null },
-    });
-  }
+      await prisma.parentLink.deleteMany({
+        where: { parentId: membership.id },
+      });
+    }
 
   await prisma.familyMember.deleteMany({ where: { userId: req.userId! } });
   await prisma.message.deleteMany({ where: { senderId: req.userId! } });
@@ -472,9 +471,8 @@ app.delete("/api/families/:familyId/members/by-membership/:membershipId", requir
     return res.status(400).json({ error: "You cannot remove yourself. Transfer admin first." });
   }
 
-  await prisma.familyMember.updateMany({
-    where: { parentMemberId: targetMembership.id },
-    data: { parentMemberId: null },
+  await prisma.parentLink.deleteMany({
+    where: { parentId: targetMembership.id },
   });
 
   await prisma.familyMember.delete({ where: { id: targetMembership.id } });
@@ -557,9 +555,8 @@ app.post("/api/families/:familyId/leave", requireAuth, async (req: AuthedRequest
     });
   }
 
-  await prisma.familyMember.updateMany({
-    where: { parentMemberId: membership.id },
-    data: { parentMemberId: null },
+  await prisma.parentLink.deleteMany({
+    where: { parentId: membership.id },
   });
 
   await prisma.familyMember.delete({ where: { id: membership.id } });
@@ -594,9 +591,13 @@ app.post("/api/families/:familyId/children", requireAuth, async (req: AuthedRequ
       role: "CHILD",
       childFullName: fullName,
       childDateOfBirth: dob,
-      parentMemberId: parentMemberId || requesterMembership.id,
       createdByUserId: req.userId!,
     },
+  });
+
+  const linkParentId = parentMemberId || requesterMembership.id;
+  await prisma.parentLink.create({
+    data: { parentId: linkParentId, childId: child.id },
   });
 
   res.status(201).json({ id: child.id, fullName: child.childFullName });
@@ -637,12 +638,11 @@ app.post("/api/families/:familyId/ancestors", requireAuth, async (req: AuthedReq
   });
 
   // If a specific descendant was chosen, link that person's parent to this new ancestor
-  if (childMemberId) {
-    await prisma.familyMember.update({
-      where: { id: childMemberId },
-      data: { parentMemberId: ancestor.id },
-    });
-  }
+    if (childMemberId) {
+      await prisma.parentLink.create({
+        data: { parentId: ancestor.id, childId: childMemberId },
+      });
+    }
 
   res.status(201).json({ id: ancestor.id, fullName: ancestor.childFullName });
 });
