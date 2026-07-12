@@ -271,6 +271,7 @@ export default function ManageFamily() {
   }
 
   const isAdmin = families[0].role === "ADMIN";
+  const isParent = families[0].role === "PARENT";
 
   return (
     <div>
@@ -357,7 +358,7 @@ export default function ManageFamily() {
           </div>
         </div>
       )}
-     {isAdmin && (
+     {(isAdmin || isParent) && (
         <form
           onSubmit={handleAddChild}
           className="mt-6 flex max-w-2xl flex-wrap items-end gap-3 rounded-xl border border-gray-200 bg-white p-4"
