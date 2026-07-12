@@ -15,7 +15,7 @@ interface Member {
   username: string | null;
   fullName: string | null;
   role: string;
-  parentMemberId: string | null;
+  parentMemberIds: string[];
   isChild: boolean;
   isAncestor: boolean;
   dateOfDeath: string | null;
