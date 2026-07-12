@@ -9,6 +9,8 @@ interface Member {
   role: string;
   parentMemberId: string | null;
   isChild: boolean;
+  isAncestor: boolean;
+  dateOfDeath: string | null;
 }
 
 async function getCurrentFamily(token: string) {
@@ -37,6 +39,7 @@ const roleColor: Record<string, string> = {
   PARENT: "ring-navy-600",
   MEMBER: "ring-green-600",
   CHILD: "ring-amber-400",
+  ANCESTOR: "ring-slate-400",
 };
 
 function MemberNode({ member, members }: { member: Member; members: Member[] }) {
@@ -55,7 +58,10 @@ function MemberNode({ member, members }: { member: Member; members: Member[] }) 
         <span className="text-sm font-medium text-slate-700">
           {member.fullName || member.username}
         </span>
-        <span className="text-xs text-slate-500">{member.role}</span>
+        <span className="text-xs text-slate-500">
+          {member.role}
+          {member.dateOfDeath && ` • d. ${new Date(member.dateOfDeath).getFullYear()}`}
+        </span>
       </div>
 
       {children.length > 0 && (

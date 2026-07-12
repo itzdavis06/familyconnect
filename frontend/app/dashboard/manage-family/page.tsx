@@ -17,6 +17,8 @@ interface Member {
   role: string;
   parentMemberId: string | null;
   isChild: boolean;
+  isAncestor: boolean;
+  dateOfDeath: string | null;
 }
 
 export default function ManageFamily() {
@@ -25,9 +27,14 @@ export default function ManageFamily() {
   const [name, setName] = useState("");
   const [error, setError] = useState("");
   const [inviteLink, setInviteLink] = useState("");
-  const [childName, setChildName] = useState("");
+ const [childName, setChildName] = useState("");
   const [childDob, setChildDob] = useState("");
- const [childError, setChildError] = useState("");
+  const [childError, setChildError] = useState("");
+  const [ancestorName, setAncestorName] = useState("");
+  const [ancestorDob, setAncestorDob] = useState("");
+  const [ancestorDod, setAncestorDod] = useState("");
+  const [ancestorChildId, setAncestorChildId] = useState("");
+  const [ancestorError, setAncestorError] = useState("");
   const [currentUsername, setCurrentUsername] = useState("");
 
  useEffect(() => {
@@ -171,6 +178,38 @@ export default function ManageFamily() {
 
     setChildName("");
     setChildDob("");
+    loadMembers();
+  }
+
+  async function handleAddAncestor(e: React.FormEvent) {
+    e.preventDefault();
+    setAncestorError("");
+
+    if (!families || families.length === 0) return;
+
+    const res = await fetch(`${API_URL}/api/families/${families[0].id}/ancestors`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({
+        fullName: ancestorName,
+        dateOfBirth: ancestorDob || null,
+        dateOfDeath: ancestorDod || null,
+        childMemberId: ancestorChildId || null,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      setAncestorError(data.error || "Something went wrong");
+      return;
+    }
+
+    setAncestorName("");
+    setAncestorDob("");
+    setAncestorDod("");
+    setAncestorChildId("");
     loadMembers();
   }
 
@@ -348,6 +387,80 @@ export default function ManageFamily() {
           )}
         </form>
       )}
+
+{isAdmin && (
+        <form
+          onSubmit={handleAddAncestor}
+          className="mt-4 flex max-w-2xl flex-wrap items-end gap-3 rounded-xl border border-gray-200 bg-white p-4"
+        >
+          <div>
+            <label className="text-xs font-medium text-slate-700">
+              Ancestor&apos;s full name
+            </label>
+            <input
+              type="text"
+              value={ancestorName}
+              onChange={(e) => setAncestorName(e.target.value)}
+              placeholder="e.g. Great Grandma Rose"
+              required
+              className="mt-1 rounded-lg border border-gray-300 px-3 py-2 text-sm"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-slate-700">
+              Born (optional)
+            </label>
+            <input
+              type="date"
+              value={ancestorDob}
+              onChange={(e) => setAncestorDob(e.target.value)}
+              max={new Date().toISOString().split("T")[0]}
+              className="mt-1 rounded-lg border border-gray-300 px-3 py-2 text-sm"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-slate-700">
+              Died (optional)
+            </label>
+            <input
+              type="date"
+              value={ancestorDod}
+              onChange={(e) => setAncestorDod(e.target.value)}
+              max={new Date().toISOString().split("T")[0]}
+              className="mt-1 rounded-lg border border-gray-300 px-3 py-2 text-sm"
+            />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-slate-700">
+              Parent of
+            </label>
+            <select
+              value={ancestorChildId}
+              onChange={(e) => setAncestorChildId(e.target.value)}
+              className="mt-1 rounded-lg border border-gray-300 px-2 py-2 text-sm"
+            >
+              <option value="">No one yet</option>
+              {members
+                .filter((m) => !m.isChild && !m.isAncestor)
+                .map((m) => (
+                  <option key={m.memberId} value={m.memberId}>
+                    {m.fullName || m.username}
+                  </option>
+                ))}
+            </select>
+          </div>
+          <button
+            type="submit"
+            className="rounded-full bg-slate-500 px-5 py-2.5 text-sm font-semibold text-white"
+          >
+            + Add Ancestor
+          </button>
+          {ancestorError && (
+            <p className="w-full text-sm text-red-600">{ancestorError}</p>
+          )}
+        </form>
+      )}
+
       <div className="mt-6 max-w-2xl rounded-xl border border-gray-200 bg-white">
         {members.map((m) => (
           <div
