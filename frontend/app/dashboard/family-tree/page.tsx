@@ -104,14 +104,14 @@ function CoupleNode({
         {parents.map((p, i) => (
           <div key={p.memberId} className="flex items-center gap-3">
             <PersonBox member={p} />
-            {i < parents.length - 1 && <div className="h-px w-6 bg-gray-300" />}
+            {i < parents.length - 1 && <div className="h-0.5 w-6 bg-slate-400" />}
           </div>
         ))}
       </div>
 
       {couple.children.length > 0 && (
         <>
-          <div className="h-6 w-px bg-gray-300" />
+          <div className="h-6 w-0.5 bg-slate-400" />
           <div className="flex flex-wrap justify-center gap-10">
             {couple.children.map((child) => (
               <PersonSubtree
