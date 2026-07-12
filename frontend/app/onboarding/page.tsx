@@ -136,10 +136,11 @@ function OnboardingForm() {
 
 export default function Onboarding() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-cream-50 px-4 py-12">
+    <div className="flex min-h-[100dvh] items-center justify-center bg-cream-50 px-4 py-12">
       <Suspense fallback={<p>Loading...</p>}>
         <OnboardingForm />
       </Suspense>
     </div>
   );
 }
+

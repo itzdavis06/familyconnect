@@ -50,7 +50,7 @@ export default async function DashboardLayout({
   const currentFamily = families[0];
 
   return (
-    <div className="flex min-h-screen bg-cream-50">
+    <div className="flex min-h-[100dvh] bg-cream-50">
       <aside className="hidden w-56 border-r border-gray-200 bg-white p-4 md:block">
         <div className="mb-8 font-[var(--font-manrope)] text-lg font-extrabold text-navy-700">
           FamilyConnect
@@ -100,6 +100,8 @@ export default async function DashboardLayout({
     </div>
   );
 }
+
+
 
 
 

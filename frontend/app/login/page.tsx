@@ -94,10 +94,11 @@ function LoginForm() {
 
 export default function Login() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-cream-50">
+    <div className="flex min-h-[100dvh] items-center justify-center bg-cream-50">
       <Suspense fallback={<p>Loading...</p>}>
         <LoginForm />
       </Suspense>
     </div>
   );
 }
+

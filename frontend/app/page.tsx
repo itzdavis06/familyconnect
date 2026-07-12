@@ -1,6 +1,6 @@
 export default function Home() {
   return (
-    <div className="min-h-screen bg-cream-50">
+    <div className="min-h-[100dvh] bg-cream-50">
       <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
         <span className="font-[var(--font-manrope)] text-lg font-extrabold text-navy-700">
           Family Connect
@@ -79,6 +79,8 @@ export default function Home() {
     </div>
   );
 }
+
+
 
 
 
