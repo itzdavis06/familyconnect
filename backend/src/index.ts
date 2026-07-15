@@ -569,13 +569,25 @@ app.get("/api/families/:familyId/members/:memberId/profile", requireAuth, async 
 
   const member = await prisma.familyMember.findUnique({
     where: { id: memberId },
-    include: { user: true },
+    include: { user: true,
+        parentLinksAsChild: { include: { parent: { include: { user: true } } } },
+        parentLinksAsParent: { include: { child: { include: { user: true } } } },
+     },
+   
   });
 
   if (!member || member.familyId !== familyId) {
     return res.status(404).json({ error: "Member not found in this family" });
   }
 
+  const parentNames = member.parentLinksAsChild.map(
+    (link) => link.parent.user?.fullName || link.parent.user?.username || link.parent.childFullName
+  );
+  const childNames = member.parentLinksAsParent.map(
+    (link) => link.child.user?.fullName || link.child.user?.username || link.child.childFullName
+  );
+  
+  
   res.json({
     fullName: member.user ? member.user.fullName : member.childFullName,
     username: member.user?.username || null,
@@ -587,6 +599,8 @@ app.get("/api/families/:familyId/members/:memberId/profile", requireAuth, async 
     dateOfDeath: member.dateOfDeath,
     isChild: !member.user && member.role === "CHILD",
     isAncestor: !member.user && member.role === "ANCESTOR",
+    parentNames,
+    childNames,
   });
 });
 
