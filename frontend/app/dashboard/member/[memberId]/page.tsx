@@ -104,12 +104,28 @@ export default async function MemberProfile({
             </div>
           )}
           {profile.location && (
-            <div className="flex justify-between">
-              <dt className="text-slate-500">Location</dt>
-              <dd className="font-medium text-slate-800">{profile.location}</dd>
-            </div>
-          )}
-        </dl>
+              <div className="flex justify-between">
+                <dt className="text-slate-500">Location</dt>
+                <dd className="font-medium text-slate-800">{profile.location}</dd>
+              </div>
+            )}
+            {profile.parentNames && profile.parentNames.length > 0 && (
+              <div className="flex justify-between">
+                <dt className="text-slate-500">Parent</dt>
+                <dd className="font-medium text-slate-800">
+                  {profile.parentNames.join(", ")}
+                </dd>
+              </div>
+            )}
+            {profile.childNames && profile.childNames.length > 0 && (
+              <div className="flex justify-between">
+                <dt className="text-slate-500">Child</dt>
+                <dd className="font-medium text-slate-800">
+                  {profile.childNames.join(", ")}
+                </dd>
+              </div>
+            )}
+          </dl>
 
         {(profile.isChild || profile.isAncestor) && (
           <p className="mt-6 rounded-lg bg-gray-50 p-3 text-xs text-slate-500">
