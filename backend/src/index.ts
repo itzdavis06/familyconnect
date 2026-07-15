@@ -6,6 +6,7 @@ import jwt from "jsonwebtoken";
 import cookieParser from "cookie-parser";
 import {prisma}  from "./prisma";
 import { requireAuth, AuthedRequest } from "./auth";
+import { encryptMessage, decryptMessage } from "./crypto";
 
 dotenv.config();
 
@@ -719,13 +720,13 @@ app.post("/api/families/:familyId/messages", requireAuth, async (req: AuthedRequ
   }
 
   const message = await prisma.message.create({
-    data: { content: content.trim(), familyId, senderId: req.userId! },
+    data: { content: encryptMessage(content.trim()), familyId, senderId: req.userId! },
     include: { sender: true },
   });
 
   res.status(201).json({
     id: message.id,
-    content: message.content,
+    content: content.trim(),
     createdAt: message.createdAt,
     senderId: message.senderId,
     senderName: message.sender.fullName || message.sender.username,
@@ -751,7 +752,7 @@ app.get("/api/families/:familyId/messages", requireAuth, async (req: AuthedReque
 
   const result = messages.map((m) => ({
     id: m.id,
-    content: m.content,
+     content: decryptMessage(m.content),
     createdAt: m.createdAt,
     senderId: m.senderId,
     senderName: m.sender.fullName || m.sender.username,
@@ -779,13 +780,13 @@ app.post("/api/direct-messages/:recipientId", requireAuth, async (req: AuthedReq
 
   const message = await prisma.directMessage.create({
     data: {
-      content: content.trim(),
+      content: encryptMessage(content.trim()),
       senderId: req.userId!,
       recipientId,
     },
   });
 
-  res.status(201).json(message);
+  res.status(201).json({ ...message, content: content.trim() });
 });
 
 app.get("/api/direct-messages/:otherUserId", requireAuth, async (req: AuthedRequest, res) => {
@@ -801,7 +802,7 @@ app.get("/api/direct-messages/:otherUserId", requireAuth, async (req: AuthedRequ
     orderBy: { createdAt: "asc" },
   });
 
-  res.json(messages);
+   res.json(messages.map((m) => ({ ...m, content: decryptMessage(m.content) })));
 });
 
 const PORT = process.env.PORT || 4000;
