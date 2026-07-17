@@ -32,6 +32,7 @@ interface Member {
   fullName: string | null;
   role: string;
   isChild: boolean;
+  photoUrl: string | null;
 }
 
 export default function Chat() {
@@ -174,17 +175,26 @@ export default function Chat() {
           </button>
 
           {otherMembers.map((m) => (
-            <button
-              key={m.memberId}
-              onClick={() => setActiveChat(m.id!)}
-              className={`border-b border-gray-100 p-4 text-left ${
-                activeChat === m.id ? "bg-green-100" : "hover:bg-gray-50"
-              }`}
-            >
-              <p className="text-sm font-semibold text-slate-800">
-                {m.fullName || m.username}
-              </p>
+              <button
+                key={m.memberId}
+                onClick={() => setActiveChat(m.id!)}
+                className={`flex items-center gap-3 border-b border-gray-100 p-4 text-left ${
+                  activeChat === m.id ? "bg-green-100" : "hover:bg-gray-50"
+                }`}
+              >
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-navy-700 text-xs font-semibold text-white">
+                  {m.photoUrl ? (
+                    <img src={m.photoUrl} alt="" className="h-full w-full object-cover" />
+                  ) : (
+                    (m.fullName || m.username || "??").slice(0, 2).toUpperCase()
+                  )}
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-slate-800">
+                    {m.fullName || m.username}
+                  </p>
               <p className="text-xs text-slate-500">Direct message</p>
+                </div>
             </button>
           ))}
         </div>

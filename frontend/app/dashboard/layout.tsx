@@ -89,9 +89,13 @@ export default async function DashboardLayout({
               </span>
             </div>
           <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-navy-700 text-xs font-semibold text-white">
-              {user.username.slice(0, 2).toUpperCase()}
-            </div>
+            <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-navy-700 text-xs font-semibold text-white">
+                {user.photoUrl ? (
+                  <img src={user.photoUrl} alt="" className="h-full w-full object-cover" />
+                ) : (
+                  user.username.slice(0, 2).toUpperCase()
+                )}
+              </div>
             <span className="text-sm font-medium text-slate-700">{user.username}</span>
           </div>
         </header>

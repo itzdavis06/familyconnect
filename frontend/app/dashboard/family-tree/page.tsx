@@ -11,6 +11,7 @@ interface Member {
   isChild: boolean;
   isAncestor: boolean;
   dateOfDeath: string | null;
+  photoUrl: string | null;
 }
 
 async function getCurrentFamily(token: string) {
@@ -44,11 +45,15 @@ function PersonBox({ member }: { member: Member }) {
       className="flex flex-col items-center gap-1 hover:opacity-80"
     >
       <div
-        className={`flex h-14 w-14 items-center justify-center rounded-full bg-white text-sm font-semibold text-slate-700 shadow ring-2 ${
+        className={`flex h-14 w-14 items-center justify-center overflow-hidden rounded-full bg-white text-sm font-semibold text-slate-700 shadow ring-2 ${
           roleColor[member.role] || "ring-gray-300"
         }`}
       >
-        {(member.fullName || member.username || "??").slice(0, 2).toUpperCase()}
+        {member.photoUrl ? (
+          <img src={member.photoUrl} alt="" className="h-full w-full object-cover" />
+        ) : (
+          (member.fullName || member.username || "??").slice(0, 2).toUpperCase()
+        )}
       </div>
       <span className="text-sm font-medium text-slate-700">
         {member.fullName || member.username}

@@ -19,6 +19,7 @@ interface Member {
   isChild: boolean;
   isAncestor: boolean;
   dateOfDeath: string | null;
+  photoUrl: string | null;
 }
 
 export default function ManageFamily() {
@@ -572,20 +573,28 @@ export default function ManageFamily() {
 
       <div className="mt-6 max-w-2xl rounded-xl border border-gray-200 bg-white">
         {members.map((m) => (
-          <div
-            key={m.memberId}
-            className="flex items-center justify-between border-b border-gray-100 p-4 last:border-b-0"
-          >
-            <div>
-              <a href={`/dashboard/member/${m.memberId}`}
-                  className="text-sm font-semibold text-slate-800 hover:underline"
-                >
-                  {m.fullName || m.username}
-                </a>
+            <div
+              key={m.memberId}
+              className="flex items-center justify-between border-b border-gray-100 p-4 last:border-b-0"
+            >
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-navy-700 text-xs font-semibold text-white">
+                  {m.photoUrl ? (
+                    <img src={m.photoUrl} alt="" className="h-full w-full object-cover" />
+                  ) : (
+                    (m.fullName || m.username || "??").slice(0, 2).toUpperCase()
+                  )}
+                </div>
+                <div>
+                  <a href={`/dashboard/member/${m.memberId}`}
+                      className="text-sm font-semibold text-slate-800 hover:underline"
+                    >
+                      {m.fullName || m.username}
+                    </a>
                 <p className="text-xs text-slate-500">{m.role}</p>
-            </div>
-
-           {isAdmin && (
+                </div>
+              </div>
+             {isAdmin && (
                 <div>
                     <div className="mt-1 flex flex-wrap items-center gap-1">
                       {(m.parentMemberIds || []).map((pid) => {

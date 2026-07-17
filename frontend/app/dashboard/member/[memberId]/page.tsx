@@ -63,9 +63,13 @@ export default async function MemberProfile({
 
       <div className="mt-4 max-w-md rounded-xl border border-gray-200 bg-white p-6">
         <div className="flex items-center gap-4">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-navy-700 text-lg font-semibold text-white">
-            {(profile.fullName || profile.username || "??").slice(0, 2).toUpperCase()}
-          </div>
+          <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-navy-700 text-lg font-semibold text-white">
+              {profile.photoUrl ? (
+                <img src={profile.photoUrl} alt="" className="h-full w-full object-cover" />
+              ) : (
+                (profile.fullName || profile.username || "??").slice(0, 2).toUpperCase()
+              )}
+            </div>
           <div>
             <h2 className="font-[var(--font-manrope)] font-bold text-navy-900">
               {profile.fullName || profile.username}

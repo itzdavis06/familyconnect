@@ -638,6 +638,7 @@ app.get("/api/families/:familyId/members/:memberId/profile", requireAuth, async 
     isAncestor: !member.user && member.role === "ANCESTOR",
     parentNames,
     childNames,
+    photoUrl: member.user?.photoUrl || null,
   });
 });
 
