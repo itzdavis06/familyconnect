@@ -775,6 +775,43 @@ app.get("/api/families/:familyId/messages", requireAuth, async (req: AuthedReque
   res.json(result);
 });
 
+app.post("/api/families/:familyId/transfer-admin", requireAuth, async (req: AuthedRequest, res) => {
+  const { familyId } = req.params;
+  const { newAdminUserId } = req.body;
+
+  const requesterMembership = await prisma.familyMember.findUnique({
+    where: { userId_familyId: { userId: req.userId!, familyId } },
+  });
+
+  if (!requesterMembership || requesterMembership.role !== "ADMIN") {
+    return res.status(403).json({ error: "Only the current admin can transfer this role" });
+  }
+
+  const newAdminMembership = await prisma.familyMember.findUnique({
+    where: { userId_familyId: { userId: newAdminUserId, familyId } },
+  });
+
+  if (!newAdminMembership) {
+    return res.status(404).json({ error: "That person isn't a member of this family" });
+  }
+
+  if (newAdminMembership.id === requesterMembership.id) {
+    return res.status(400).json({ error: "You're already the admin" });
+  }
+
+  await prisma.familyMember.update({
+    where: { id: newAdminMembership.id },
+    data: { role: "ADMIN" },
+  });
+
+  await prisma.familyMember.update({
+    where: { id: requesterMembership.id },
+    data: { role: "MEMBER" },
+  });
+
+  res.json({ success: true });
+});
+
 app.post("/api/direct-messages/:recipientId", requireAuth, async (req: AuthedRequest, res) => {
   const { recipientId } = req.params;
   const { content } = req.body;
