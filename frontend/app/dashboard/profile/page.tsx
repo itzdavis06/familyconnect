@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { API_URL } from "@/lib/api";
+import ProfilePhotoUpload from "@/components/ProfilePhotoUpload";
 
 async function getCurrentUser() {
   const cookieStore = await cookies();
@@ -35,9 +36,10 @@ export default async function Profile() {
       </h1>
       <div className="mt-6 max-w-md rounded-xl border border-gray-200 bg-white p-6">
         <div className="flex items-center gap-4">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-navy-700 text-lg font-semibold text-white">
-            {user.username.slice(0, 2).toUpperCase()}
-          </div>
+          <ProfilePhotoUpload
+            initialPhotoUrl={user.photoUrl}
+            initials={user.username.slice(0, 2).toUpperCase()}
+          />
           <div>
             <h2 className="font-[var(--font-manrope)] font-bold text-navy-900">
               {user.fullName || user.username}
