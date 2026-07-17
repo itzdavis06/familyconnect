@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { API_URL } from "@/lib/api";
 
 export default function Settings() {
@@ -14,6 +14,19 @@ export default function Settings() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deletePassword, setDeletePassword] = useState("");
   const [deleteError, setDeleteError] = useState("");
+
+  const [family, setFamily] = useState<{ id: string; name: string; role: string } | null>(null);
+  const [showFamilyDeleteConfirm, setShowFamilyDeleteConfirm] = useState(false);
+  const [familyDeleteConfirmText, setFamilyDeleteConfirmText] = useState("");
+  const [familyDeleteError, setFamilyDeleteError] = useState("");
+
+  useEffect(() => {
+    fetch(`${API_URL}/api/families`, { credentials: "include" })
+      .then((res) => (res.ok ? res.json() : []))
+      .then((families) => {
+        if (families.length > 0) setFamily(families[0]);
+      });
+  }, []);
 
   async function handleLogout() {
     await fetch(`${API_URL}/api/logout`, {
@@ -71,6 +84,30 @@ export default function Settings() {
     }
 
     window.location.href = "/login";
+  }
+
+  async function handleDeleteFamily() {
+    if (!family) return;
+    setFamilyDeleteError("");
+
+    if (familyDeleteConfirmText !== family.name) {
+      setFamilyDeleteError("Type the family name exactly to confirm");
+      return;
+    }
+
+    const res = await fetch(`${API_URL}/api/families/${family.id}`, {
+      method: "DELETE",
+      credentials: "include",
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      setFamilyDeleteError(data.error || "Something went wrong");
+      return;
+    }
+
+    window.location.href = "/dashboard";
   }
 
   return (
@@ -188,6 +225,47 @@ export default function Settings() {
           )}
         </div>
 
+        {family && family.role === "ADMIN" && (
+          <div className="border-b border-gray-100 p-4">
+            <p className="text-xs font-semibold uppercase text-slate-400">
+              Family
+            </p>
+
+            <button
+              onClick={() => setShowFamilyDeleteConfirm(!showFamilyDeleteConfirm)}
+              className="mt-2 block w-full py-2 text-left text-sm text-red-600"
+            >
+              Delete Family
+            </button>
+
+            {showFamilyDeleteConfirm && (
+              <div className="mb-3 flex flex-col gap-3 rounded-lg bg-red-50 p-3">
+                <p className="text-xs text-red-700">
+                  This permanently deletes <strong>{family.name}</strong> and
+                  removes every member, child profile, ancestor, and message.
+                  This cannot be undone. Type the family name to confirm.
+                </p>
+                <input
+                  type="text"
+                  value={familyDeleteConfirmText}
+                  onChange={(e) => setFamilyDeleteConfirmText(e.target.value)}
+                  placeholder={family.name}
+                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
+                />
+                {familyDeleteError && (
+                  <p className="text-xs text-red-600">{familyDeleteError}</p>
+                )}
+                <button
+                  onClick={handleDeleteFamily}
+                  className="rounded-full bg-red-600 px-4 py-2 text-xs font-semibold text-white"
+                >
+                  Permanently Delete {family.name}
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
         <div className="border-b border-gray-100 p-4">
           <p className="text-xs font-semibold uppercase text-slate-400">
             App
@@ -217,4 +295,3 @@ export default function Settings() {
     </div>
   );
 }
-
