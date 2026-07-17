@@ -17,6 +17,7 @@ model User {
   username     String    @unique
   passwordHash String
   fullName     String?
+  photoUrl     String?
   dateOfBirth  DateTime?
   email        String?   @unique
   phone        String?

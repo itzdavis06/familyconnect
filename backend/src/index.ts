@@ -7,6 +7,10 @@ import cookieParser from "cookie-parser";
 import {prisma}  from "./prisma";
 import { requireAuth, AuthedRequest } from "./auth";
 import { encryptMessage, decryptMessage } from "./crypto";
+import multer from "multer";
+import cloudinary from "./cloudinary";
+
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
 
 dotenv.config();
 
@@ -135,6 +139,7 @@ app.get("/api/me", async (req, res) => {
       occupation: user.occupation,
       location: user.location,
       createdAt: user.createdAt,
+      photoUrl: user.photoUrl,
     });
     
   } catch {
@@ -217,6 +222,35 @@ app.patch("/api/me/password", requireAuth, async (req: AuthedRequest, res) => {
   res.json({ success: true });
 });
 
+app.post("/api/me/photo", requireAuth, upload.single("photo"), async (req: AuthedRequest, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: "No photo uploaded" });
+  }
+
+  try {
+    const uploadResult = await new Promise<any>((resolve, reject) => {
+      const stream = cloudinary.uploader.upload_stream(
+        { folder: "familyconnect-profiles", transformation: [{ width: 300, height: 300, crop: "fill" }] },
+        (error, result) => {
+          if (error) reject(error);
+          else resolve(result);
+        }
+      );
+      stream.end(req.file!.buffer);
+    });
+
+    const user = await prisma.user.update({
+      where: { id: req.userId! },
+      data: { photoUrl: uploadResult.secure_url },
+    });
+
+    res.json({ photoUrl: user.photoUrl });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to upload photo" });
+  }
+});
+
 app.delete("/api/me", requireAuth, async (req: AuthedRequest, res) => {
   const { password } = req.body;
 
@@ -251,6 +285,8 @@ app.delete("/api/me", requireAuth, async (req: AuthedRequest, res) => {
   res.clearCookie("token");
   res.json({ success: true });
 });
+
+
 
 app.post("/api/families", requireAuth, async (req: AuthedRequest, res) => {
   const { name } = req.body;
@@ -381,6 +417,7 @@ app.get("/api/families/:familyId/members", requireAuth, async (req: AuthedReques
       isChild: !m.user && m.role === "CHILD",
       isAncestor: !m.user && m.role === "ANCESTOR",
       dateOfDeath: m.dateOfDeath,
+      photoUrl: m.user?.photoUrl || null,
     }));
     
   res.json(result);
