@@ -29,3 +29,4 @@ Running list of features and improvements identified but not yet built.
 - Has been deployed to the internet
 - Transfer admin role to another family member
 - Message encryption done through encryption at rest
+- Delete a family entirely (Admin-only, with full cleanup and confirmation)
