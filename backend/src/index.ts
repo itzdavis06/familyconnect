@@ -812,6 +812,28 @@ app.post("/api/families/:familyId/transfer-admin", requireAuth, async (req: Auth
   res.json({ success: true });
 });
 
+app.delete("/api/families/:familyId", requireAuth, async (req: AuthedRequest, res) => {
+  const { familyId } = req.params;
+
+  const requesterMembership = await prisma.familyMember.findUnique({
+    where: { userId_familyId: { userId: req.userId!, familyId } },
+  });
+
+  if (!requesterMembership || requesterMembership.role !== "ADMIN") {
+    return res.status(403).json({ error: "Only the family admin can delete this family" });
+  }
+
+  await prisma.message.deleteMany({ where: { familyId } });
+  await prisma.invitation.deleteMany({ where: { familyId } });
+  await prisma.parentLink.deleteMany({
+    where: { OR: [{ parent: { familyId } }, { child: { familyId } }] },
+  });
+  await prisma.familyMember.deleteMany({ where: { familyId } });
+  await prisma.family.delete({ where: { id: familyId } });
+
+  res.json({ success: true });
+});
+
 app.post("/api/direct-messages/:recipientId", requireAuth, async (req: AuthedRequest, res) => {
   const { recipientId } = req.params;
   const { content } = req.body;
