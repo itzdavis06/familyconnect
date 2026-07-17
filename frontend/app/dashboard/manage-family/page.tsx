@@ -35,6 +35,9 @@ export default function ManageFamily() {
   const [ancestorDod, setAncestorDod] = useState("");
   const [ancestorChildId, setAncestorChildId] = useState("");
   const [ancestorError, setAncestorError] = useState("");
+  const [showTransfer, setShowTransfer] = useState(false);
+  const [transferTarget, setTransferTarget] = useState("");
+  const [transferError, setTransferError] = useState("");
   const [currentUsername, setCurrentUsername] = useState("");
 
  useEffect(() => {
@@ -192,6 +195,30 @@ export default function ManageFamily() {
     window.location.href = "/dashboard";
   }
 
+  async function handleTransferAdmin() {
+    if (!families || families.length === 0 || !transferTarget) return;
+    setTransferError("");
+
+    const res = await fetch(
+      `${API_URL}/api/families/${families[0].id}/transfer-admin`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ newAdminUserId: transferTarget }),
+      }
+    );
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      setTransferError(data.error || "Something went wrong");
+      return;
+    }
+
+    window.location.href = "/dashboard/manage-family";
+  }
+
   async function handleAddChild(e: React.FormEvent) {
     e.preventDefault();
     setChildError("");
@@ -313,16 +340,60 @@ export default function ManageFamily() {
             className="rounded-full bg-navy-700 px-5 py-2.5 text-sm font-semibold text-white"
           >
             + Invite Member
-          </button>
-        ) : (
-          <button
-            onClick={handleLeaveFamily}
-            className="rounded-full border border-red-600 px-5 py-2.5 text-sm font-semibold text-red-600"
-          >
-            Leave Family
-          </button>
+            </button>
+          ) : (
+            <button
+              onClick={handleLeaveFamily}
+              className="rounded-full border border-red-600 px-5 py-2.5 text-sm font-semibold text-red-600"
+            >
+              Leave Family
+            </button>
+          )}
+        </div>
+
+        {isAdmin && (
+          <div className="mt-2">
+            <button
+              onClick={() => setShowTransfer(!showTransfer)}
+              className="text-xs font-medium text-slate-600 underline"
+            >
+              Transfer admin role
+            </button>
+
+            {showTransfer && (
+              <div className="mt-3 flex max-w-md flex-wrap items-end gap-3 rounded-xl border border-gray-200 bg-white p-4">
+                <div>
+                  <label className="text-xs font-medium text-slate-700">
+                    New admin
+                  </label>
+                  <select
+                    value={transferTarget}
+                    onChange={(e) => setTransferTarget(e.target.value)}
+                    className="mt-1 rounded-lg border border-gray-300 px-2 py-2 text-sm"
+                  >
+                    <option value="">Select a member</option>
+                    {members
+                      .filter((m) => m.id && !m.isChild && !m.isAncestor)
+                      .map((m) => (
+                        <option key={m.memberId} value={m.id!}>
+                          {m.fullName || m.username}
+                        </option>
+                      ))}
+                  </select>
+                </div>
+                <button
+                  onClick={handleTransferAdmin}
+                  className="rounded-full bg-navy-700 px-5 py-2.5 text-sm font-semibold text-white"
+                >
+                  Transfer
+                </button>
+                {transferError && (
+                  <p className="w-full text-sm text-red-600">{transferError}</p>
+                )}
+              </div>
+            )}
+          </div>
         )}
-      </div>
 
       {inviteLink && (
         <div className="mt-4 max-w-2xl rounded-xl border border-gray-200 bg-white p-4">
