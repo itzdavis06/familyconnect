@@ -251,6 +251,50 @@ app.post("/api/me/photo", requireAuth, upload.single("photo"), async (req: Authe
   }
 });
 
+app.post("/api/families/:familyId/members/:memberId/photo", requireAuth, upload.single("photo"), async (req: AuthedRequest, res) => {
+  const { familyId, memberId } = req.params;
+
+  const requesterMembership = await prisma.familyMember.findUnique({
+    where: { userId_familyId: { userId: req.userId!, familyId } },
+  });
+
+  if (!requesterMembership || requesterMembership.role !== "ADMIN") {
+    return res.status(403).json({ error: "Only family admins can set a photo for this profile" });
+  }
+
+  const targetMember = await prisma.familyMember.findUnique({ where: { id: memberId } });
+  if (!targetMember || targetMember.familyId !== familyId) {
+    return res.status(404).json({ error: "Member not found in this family" });
+  }
+
+  if (!req.file) {
+    return res.status(400).json({ error: "No photo uploaded" });
+  }
+
+  try {
+    const uploadResult = await new Promise<any>((resolve, reject) => {
+      const stream = cloudinary.uploader.upload_stream(
+        { folder: "familyconnect-profiles", transformation: [{ width: 300, height: 300, crop: "fill" }] },
+        (error, result) => {
+          if (error) reject(error);
+          else resolve(result);
+        }
+      );
+      stream.end(req.file!.buffer);
+    });
+
+    const updated = await prisma.familyMember.update({
+      where: { id: memberId },
+      data: { memberPhotoUrl: uploadResult.secure_url },
+    });
+
+    res.json({ photoUrl: updated.memberPhotoUrl });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to upload photo" });
+  }
+}); 
+
 app.delete("/api/me", requireAuth, async (req: AuthedRequest, res) => {
   const { password } = req.body;
 
@@ -417,7 +461,7 @@ app.get("/api/families/:familyId/members", requireAuth, async (req: AuthedReques
       isChild: !m.user && m.role === "CHILD",
       isAncestor: !m.user && m.role === "ANCESTOR",
       dateOfDeath: m.dateOfDeath,
-      photoUrl: m.user?.photoUrl || null,
+      photoUrl: m.user?.photoUrl || m.memberPhotoUrl || null,
     }));
     
   res.json(result);
@@ -638,7 +682,7 @@ app.get("/api/families/:familyId/members/:memberId/profile", requireAuth, async 
     isAncestor: !member.user && member.role === "ANCESTOR",
     parentNames,
     childNames,
-    photoUrl: member.user?.photoUrl || null,
+    photoUrl: member.user?.photoUrl || member.memberPhotoUrl || null,
   });
 });
 

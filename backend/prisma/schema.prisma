@@ -49,6 +49,7 @@ model FamilyMember {
   childFullName   String?
   childDateOfBirth DateTime?
   dateOfDeath     DateTime?
+  memberPhotoUrl  String?
   createdByUserId String?
 
   user     User?         @relation(fields: [userId], references: [id])
