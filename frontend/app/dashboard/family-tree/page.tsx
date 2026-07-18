@@ -120,17 +120,27 @@ function CoupleNode({
       {couple.children.length > 0 && (
         <>
           <div className="h-6 w-0.5 bg-slate-400" />
-          <div className="flex flex-wrap justify-center gap-10">
-            {couple.children.map((child) => (
-              <PersonSubtree
-                key={child.memberId}
-                member={child}
-                couples={couples}
-                byMemberId={byMemberId}
-                visited={visited}
-              />
-            ))}
-          </div>
+          {couple.children.length === 1 ? (
+            <PersonSubtree
+              member={couple.children[0]}
+              couples={couples}
+              byMemberId={byMemberId}
+              visited={visited}
+            />
+          ) : (
+            <div className="inline-flex flex-wrap justify-center border-t-2 border-slate-400 pt-6">
+              {couple.children.map((child) => (
+                <div key={child.memberId} className="flex flex-col items-center px-5">
+                  <PersonSubtree
+                    member={child}
+                    couples={couples}
+                    byMemberId={byMemberId}
+                    visited={visited}
+                  />
+                </div>
+              ))}
+            </div>
+          )}
         </>
       )}
     </div>
