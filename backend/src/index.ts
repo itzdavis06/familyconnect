@@ -262,13 +262,26 @@ app.post("/api/families/:familyId/members/:memberId/photo", requireAuth, upload.
     return res.status(403).json({ error: "You're not a member of this family" });
   }
 
-  const targetMember = await prisma.familyMember.findUnique({ where: { id: memberId } });
+  const targetMember = await prisma.familyMember.findUnique({
+    where: { id: memberId },
+    include: { parentLinksAsChild: true },
+  });
+
   if (!targetMember || targetMember.familyId !== familyId) {
     return res.status(404).json({ error: "Member not found in this family" });
   }
 
   if (targetMember.role === "ANCESTOR" && requesterMembership.role !== "ADMIN") {
     return res.status(403).json({ error: "Only family admins can set a photo for an ancestor" });
+  }
+
+  if (targetMember.role === "CHILD") {
+    const isActualParent = targetMember.parentLinksAsChild.some(
+      (link) => link.parentId === requesterMembership.id
+    );
+    if (!isActualParent && requesterMembership.role !== "ADMIN") {
+      return res.status(403).json({ error: "Only this child's parent or a family admin can set their photo" });
+    }
   }
 
   if (!req.file) {

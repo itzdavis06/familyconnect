@@ -49,6 +49,7 @@ Backend
 - TypeScript
 - Prisma — database ORM (talks to PostgreSQL)
 - PostgreSQL — the actual database
+- Cloudinary — image hosting for profile pictures 
 
 Key libraries
 
@@ -59,5 +60,3 @@ Key libraries
 - Node's built-in crypto — message encryption at rest
 
 About to add
-
-Cloudinary — image hosting for profile pictures (since Railway's own storage doesn't persist files between deployments)
