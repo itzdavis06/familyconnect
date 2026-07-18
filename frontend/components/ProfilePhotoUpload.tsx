@@ -72,10 +72,10 @@ export default function ProfilePhotoUpload({
         className="hidden"
       />
       <button
-        onClick={() => fileInputRef.current?.click()}
-        className="text-xs font-medium text-navy-700 underline"
-      >
-        {photoUrl ? "Change photo" : "Add photo"}
+       onClick={() => fileInputRef.current?.click()}
+          className="rounded-full bg-navy-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-navy-900"
+        >
+          {photoUrl ? "Change photo" : "Add photo"}
       </button>
       {error && <p className="text-xs text-red-600">{error}</p>}
     </div>

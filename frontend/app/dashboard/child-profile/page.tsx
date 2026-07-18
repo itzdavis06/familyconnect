@@ -51,8 +51,12 @@ export default async function ChildProfile() {
             key={child.memberId}
             className="w-full max-w-xs rounded-xl border border-gray-200 bg-white p-6 text-center"
           >
-           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-amber-100 text-lg font-semibold text-amber-700">
-              {child.fullName.slice(0, 2).toUpperCase()}
+           <div className="mx-auto flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-amber-100 text-lg font-semibold text-amber-700">
+              {child.photoUrl ? (
+                <img src={child.photoUrl} alt="" className="h-full w-full object-cover" />
+              ) : (
+                child.fullName.slice(0, 2).toUpperCase()
+              )}
             </div>
             <h2 className="mt-3 font-[var(--font-manrope)] font-bold text-navy-900">
               {child.fullName}

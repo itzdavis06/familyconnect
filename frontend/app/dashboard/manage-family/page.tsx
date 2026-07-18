@@ -357,9 +357,9 @@ export default function ManageFamily() {
           <div className="mt-2">
             <button
               onClick={() => setShowTransfer(!showTransfer)}
-              className="text-xs font-medium text-slate-600 underline"
-            >
-              Transfer admin role
+                className="rounded-full border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+              >
+                Transfer admin role
             </button>
 
             {showTransfer && (

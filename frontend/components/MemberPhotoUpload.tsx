@@ -47,20 +47,25 @@ export default function MemberPhotoUpload({
   }
 
   return (
-    <button
-      onClick={() => fileInputRef.current?.click()}
-      className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-navy-700 text-xs font-semibold text-white"
-    >
-      {photoUrl ? (
-        <img src={photoUrl} alt="" className="h-full w-full object-cover" />
-      ) : (
-        initials
-      )}
-      {uploading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/40 text-[10px]">
-          ...
-        </div>
-      )}
+    <div className="relative">
+      <button
+        onClick={() => fileInputRef.current?.click()}
+        className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-navy-700 text-xs font-semibold text-white"
+      >
+        {photoUrl ? (
+          <img src={photoUrl} alt="" className="h-full w-full object-cover" />
+        ) : (
+          initials
+        )}
+        {uploading && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/40 text-[10px]">
+            ...
+          </div>
+        )}
+      </button>
+      <div className="pointer-events-none absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-green-600 text-[9px] text-white ring-2 ring-white">
+        +
+      </div>
       <input
         ref={fileInputRef}
         type="file"
@@ -68,6 +73,6 @@ export default function MemberPhotoUpload({
         onChange={handleFileChange}
         className="hidden"
       />
-    </button>
+    </div>
   );
 }
