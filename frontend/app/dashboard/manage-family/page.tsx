@@ -579,7 +579,7 @@ export default function ManageFamily() {
               className="flex items-center justify-between border-b border-gray-100 p-4 last:border-b-0"
             >
               <div className="flex items-center gap-3">
-                {(m.isChild || m.isAncestor) && isAdmin ? (
+                {(m.isChild || (m.isAncestor && isAdmin)) ? (
                   <MemberPhotoUpload
                     familyId={families[0].id}
                     memberId={m.memberId}
