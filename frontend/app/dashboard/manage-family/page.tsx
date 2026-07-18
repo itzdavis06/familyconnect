@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { API_URL } from "@/lib/api";
+import MemberPhotoUpload from "@/components/MemberPhotoUpload";
 
 interface Family {
   id: string;
@@ -578,13 +579,23 @@ export default function ManageFamily() {
               className="flex items-center justify-between border-b border-gray-100 p-4 last:border-b-0"
             >
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-navy-700 text-xs font-semibold text-white">
-                  {m.photoUrl ? (
-                    <img src={m.photoUrl} alt="" className="h-full w-full object-cover" />
-                  ) : (
-                    (m.fullName || m.username || "??").slice(0, 2).toUpperCase()
-                  )}
-                </div>
+                {(m.isChild || m.isAncestor) && isAdmin ? (
+                  <MemberPhotoUpload
+                    familyId={families[0].id}
+                    memberId={m.memberId}
+                    initialPhotoUrl={m.photoUrl}
+                    initials={(m.fullName || m.username || "??").slice(0, 2).toUpperCase()}
+                    onUploaded={loadMembers}
+                  />
+                ) : (
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-navy-700 text-xs font-semibold text-white">
+                    {m.photoUrl ? (
+                      <img src={m.photoUrl} alt="" className="h-full w-full object-cover" />
+                    ) : (
+                      (m.fullName || m.username || "??").slice(0, 2).toUpperCase()
+                    )}
+                  </div>
+                )}
                 <div>
                   <a href={`/dashboard/member/${m.memberId}`}
                       className="text-sm font-semibold text-slate-800 hover:underline"
