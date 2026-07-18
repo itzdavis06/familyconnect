@@ -279,8 +279,8 @@ app.post("/api/families/:familyId/members/:memberId/photo", requireAuth, upload.
     const isActualParent = targetMember.parentLinksAsChild.some(
       (link) => link.parentId === requesterMembership.id
     );
-    if (!isActualParent && requesterMembership.role !== "ADMIN") {
-      return res.status(403).json({ error: "Only this child's parent or a family admin can set their photo" });
+    if (!isActualParent ) {
+      return res.status(403).json({ error: "Only this child's parent can set their photo" });
     }
   }
 
