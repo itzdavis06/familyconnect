@@ -466,6 +466,7 @@ app.get("/api/families/:familyId/members", requireAuth, async (req: AuthedReques
       isAncestor: !m.user && m.role === "ANCESTOR",
       dateOfDeath: m.dateOfDeath,
       photoUrl: m.user?.photoUrl || m.memberPhotoUrl || null,
+      dateOfBirth: m.user ? m.user.dateOfBirth : m.childDateOfBirth,
     }));
     
   res.json(result);
