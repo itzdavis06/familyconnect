@@ -48,6 +48,13 @@ export default async function Dashboard() {
   const adultMembers = members.filter((m: any) => !m.isChild);
   const childMembers = members.filter((m: any) => m.isChild);
 
+  const today = new Date();
+  const birthdayMembers = members.filter((m: any) => {
+    if (!m.dateOfBirth) return false;
+    const dob = new Date(m.dateOfBirth);
+    return dob.getMonth() === today.getMonth() && dob.getDate() === today.getDate();
+  });
+
   return (
     <div>
       <h1 className="font-[var(--font-manrope)] text-2xl font-extrabold text-navy-900">
@@ -56,6 +63,16 @@ export default async function Dashboard() {
       <p className="mt-1 text-sm text-slate-600">
         Here&apos;s what&apos;s happening with your family.
       </p>
+
+      {birthdayMembers.length > 0 && (
+        <div className="mt-4 flex items-center gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4">
+          <span className="text-2xl">🎉</span>
+          <p className="text-sm font-medium text-amber-800">
+            {birthdayMembers.map((m: any) => m.fullName || m.username).join(", ")}
+            {birthdayMembers.length === 1 ? " has" : " have"} a birthday today!
+          </p>
+        </div>
+      )}
 
       {!family ? (
         <div className="mt-6 max-w-lg rounded-xl border border-gray-200 bg-white p-6">
