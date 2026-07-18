@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { API_URL } from "@/lib/api";
 import ProfilePhotoUpload from "@/components/ProfilePhotoUpload";
+import EditProfileDetails from "@/components/EditProfileDetails";
 
 async function getCurrentUser() {
   const cookieStore = await cookies();
@@ -48,44 +49,12 @@ export default async function Profile() {
           </div>
         </div>
 
-        <dl className="mt-6 flex flex-col gap-3 text-sm">
-          <div className="flex justify-between">
-            <dt className="text-slate-500">Member since</dt>
-            <dd className="font-medium text-slate-800">
-              {formatDate(user.createdAt)}
-            </dd>
-          </div>
-          <div className="flex justify-between">
-            <dt className="text-slate-500">Date of birth</dt>
-            <dd className="font-medium text-slate-800">
-              {formatDate(user.dateOfBirth)}
-            </dd>
-          </div>
-          <div className="flex justify-between">
-            <dt className="text-slate-500">Email</dt>
-            <dd className="font-medium text-slate-800">
-              {user.email || "Not set"}
-            </dd>
-          </div>
-          <div className="flex justify-between">
-            <dt className="text-slate-500">Phone</dt>
-            <dd className="font-medium text-slate-800">
-              {user.phone || "Not set"}
-            </dd>
-          </div>
-          <div className="flex justify-between">
-            <dt className="text-slate-500">Occupation</dt>
-            <dd className="font-medium text-slate-800">
-              {user.occupation || "Not set"}
-            </dd>
-          </div>
-          <div className="flex justify-between">
-            <dt className="text-slate-500">Location</dt>
-            <dd className="font-medium text-slate-800">
-              {user.location || "Not set"}
-            </dd>
-          </div>
-        </dl>
+        <div className="mt-6 flex justify-between text-sm">
+          <dt className="text-slate-500">Member since</dt>
+          <dd className="font-medium text-slate-800">{formatDate(user.createdAt)}</dd>
+        </div>
+
+        <EditProfileDetails initialUser={user} />
       </div>
     </div>
   );
