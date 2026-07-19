@@ -232,10 +232,11 @@ export default async function FamilyTree() {
       </h1>
       <p className="mt-1 text-sm text-slate-600">{family.name}</p>
 
-      <div className="mt-8 flex flex-wrap justify-center gap-10">
-        {topLevelCoupleKeys.map((key) => (
-          <CoupleNode
-            key={key}
+      <div className="mt-8 -mx-6 overflow-x-auto px-6 pb-4">
+        <div className="flex w-max min-w-full justify-center gap-10">
+          {topLevelCoupleKeys.map((key) => (
+            <CoupleNode
+              key={key}
             coupleKey={key}
             couples={couples}
             byMemberId={byMemberId}
@@ -243,10 +244,11 @@ export default async function FamilyTree() {
           />
         ))}
         {standaloneMembers.map((m) => (
-          <PersonBox key={m.memberId} member={m} />
-        ))}
+            <PersonBox key={m.memberId} member={m} />
+          ))}
+        </div>
+        </div>
       </div>
-    </div>
-  );
+    );
 }
 
