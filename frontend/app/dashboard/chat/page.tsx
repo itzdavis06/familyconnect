@@ -40,6 +40,7 @@ export default function Chat() {
   const [members, setMembers] = useState<Member[]>([]);
   const [currentUserId, setCurrentUserId] = useState("");
   const [activeChat, setActiveChat] = useState<"group" | string>("group");
+  const [mobileView, setMobileView] = useState<"list" | "chat">("list");
 
   const [groupMessages, setGroupMessages] = useState<GroupMessage[]>([]);
   const [directMessages, setDirectMessages] = useState<DirectMessage[]>([]);
@@ -67,7 +68,6 @@ export default function Chat() {
       .then(setMembers);
   }, [family]);
 
-  // Poll whichever chat is active
   useEffect(() => {
     if (!family) return;
 
@@ -141,6 +141,11 @@ export default function Chat() {
     }
   }
 
+  function selectChat(chatId: "group" | string) {
+    setActiveChat(chatId);
+    setMobileView("chat");
+  }
+
   if (!family) {
     return (
       <p className="text-sm text-slate-600">
@@ -156,14 +161,18 @@ export default function Chat() {
   const activeMember = otherMembers.find((m) => m.id === activeChat);
 
   return (
-    <div className="flex h-[calc(100vh-8rem)] gap-6">
-      <div className="w-64 shrink-0 rounded-xl border border-gray-200 bg-white">
+    <div className="flex h-[calc(100dvh-8rem)] gap-6">
+      <div
+        className={`${
+          mobileView === "list" ? "flex" : "hidden"
+        } w-full flex-col rounded-xl border border-gray-200 bg-white md:flex md:w-64 md:shrink-0`}
+      >
         <div className="border-b border-gray-200 p-4">
           <h2 className="font-bold text-slate-900">Chat</h2>
         </div>
-        <div className="flex flex-col">
+        <div className="flex flex-col overflow-y-auto">
           <button
-            onClick={() => setActiveChat("group")}
+            onClick={() => selectChat("group")}
             className={`border-b border-gray-100 p-4 text-left ${
               activeChat === "group" ? "bg-green-100" : "hover:bg-gray-50"
             }`}
@@ -175,33 +184,44 @@ export default function Chat() {
           </button>
 
           {otherMembers.map((m) => (
-              <button
-                key={m.memberId}
-                onClick={() => setActiveChat(m.id!)}
-                className={`flex items-center gap-3 border-b border-gray-100 p-4 text-left ${
-                  activeChat === m.id ? "bg-green-100" : "hover:bg-gray-50"
-                }`}
-              >
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-navy-700 text-xs font-semibold text-white">
-                  {m.photoUrl ? (
-                    <img src={m.photoUrl} alt="" className="h-full w-full object-cover" />
-                  ) : (
-                    (m.fullName || m.username || "??").slice(0, 2).toUpperCase()
-                  )}
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-slate-800">
-                    {m.fullName || m.username}
-                  </p>
-              <p className="text-xs text-slate-500">Direct message</p>
-                </div>
+            <button
+              key={m.memberId}
+              onClick={() => selectChat(m.id!)}
+              className={`flex items-center gap-3 border-b border-gray-100 p-4 text-left ${
+                activeChat === m.id ? "bg-green-100" : "hover:bg-gray-50"
+              }`}
+            >
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-navy-700 text-xs font-semibold text-white">
+                {m.photoUrl ? (
+                  <img src={m.photoUrl} alt="" className="h-full w-full object-cover" />
+                ) : (
+                  (m.fullName || m.username || "??").slice(0, 2).toUpperCase()
+                )}
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-slate-800">
+                  {m.fullName || m.username}
+                </p>
+                <p className="text-xs text-slate-500">Direct message</p>
+              </div>
             </button>
           ))}
         </div>
       </div>
 
-      <div className="flex flex-1 flex-col rounded-xl border border-gray-200 bg-white">
-        <div className="border-b border-gray-200 p-4">
+      <div
+        className={`${
+          mobileView === "chat" ? "flex" : "hidden"
+        } w-full flex-1 flex-col rounded-xl border border-gray-200 bg-white md:flex`}
+      >
+        <div className="flex items-center gap-2 border-b border-gray-200 p-4">
+          <button
+            onClick={() => setMobileView("list")}
+            className="text-navy-700 md:hidden"
+            aria-label="Back to conversations"
+          >
+            &larr;
+          </button>
           <h2 className="font-bold text-slate-900">
             {activeChat === "group"
               ? family.name
@@ -266,7 +286,7 @@ export default function Chat() {
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder="Type a message..."
-            className="flex-1 rounded-full border border-gray-300 px-4 py-2 text-sm"
+            className="flex-1 rounded-full border border-gray-300 px-4 py-2 text-base sm:text-sm"
           />
           <button
             type="submit"
@@ -279,4 +299,3 @@ export default function Chat() {
     </div>
   );
 }
-
