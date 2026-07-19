@@ -41,6 +41,7 @@ export default function ManageFamily() {
   const [transferTarget, setTransferTarget] = useState("");
   const [transferError, setTransferError] = useState("");
   const [currentUsername, setCurrentUsername] = useState("");
+  const currentMember = members.find((mem) => mem.username === currentUsername);
 
  useEffect(() => {
     fetch(`${API_URL}/api/families`, { credentials: "include" })
@@ -579,7 +580,8 @@ export default function ManageFamily() {
               className="flex items-center justify-between border-b border-gray-100 p-4 last:border-b-0"
             >
               <div className="flex items-center gap-3">
-                {(m.isChild || (m.isAncestor && isAdmin)) ? (
+                {(m.isChild && currentMember && (m.parentMemberIds || []).includes(currentMember.memberId)) ||
+                (m.isAncestor && isAdmin) ? (
                   <MemberPhotoUpload
                     familyId={families[0].id}
                     memberId={m.memberId}
